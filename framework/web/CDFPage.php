@@ -2,7 +2,7 @@
 	/**
 	 * Renders an HTML document to the requesting client (browser).
 	 * <code>
-	 *	$page = new CDFDemonPage();
+	 *	$page = new CDFPage();
 	 *	$page->setPageTitle('Moo');
 	 *	$page->render('main/home');
 	 * </code>
@@ -14,7 +14,7 @@
 	require_once 'core/CDFExceptions.php';
 	require_once 'core/CDFDataHelper.php';
 
-	class CDFDemonPage
+	class CDFPage
 	{
 		/**
 		 * @var Savant3 Template renderer
