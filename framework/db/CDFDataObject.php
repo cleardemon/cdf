@@ -1,7 +1,7 @@
 <?php
 
-	require_once 'db/CDFMySqlClient.php';
-	require_once 'db/CDFDataObjectValidationError.php';
+	require_once 'CDFMySqlClient.php';
+	require_once 'CDFDataObjectValidationError.php';
 
 	abstract class CDFDataObject
 	{

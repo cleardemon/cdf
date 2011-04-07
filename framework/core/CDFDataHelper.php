@@ -1,6 +1,6 @@
 <?php
-	require_once 'core/CDFFormat.php';
-	require_once 'core/CDFExceptions.php';
+	require_once 'CDFFormat.php';
+	require_once 'CDFExceptions.php';
 
 	/**
 	 *  Provides wrappers for guaranteeing a variable is the specified type.

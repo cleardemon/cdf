@@ -17,6 +17,6 @@ in its definition, so high-level functionality like PDF generation or user inter
 Documentation for this is provided at class level in the framework directory using PHPDoc syntax. There is also
 reference documentation that can be read on the CodePlex wiki: http://cdf.codeplex.com
 
-Suggestions, critisim and submissions are welcome! Nothing is perfect. To provide feedback, please use the CodePlex
+Suggestions, criticism and submissions are welcome! Nothing is perfect. To provide feedback, please use the CodePlex
 discussions at http://cdf.codeplex.com/discussions
 

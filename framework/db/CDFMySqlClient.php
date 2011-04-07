@@ -5,7 +5,7 @@
 	 * @author demon
 	 */
 
-	require_once 'db/CDFIDataConnection.php';
+	require_once 'CDFIDataConnection.php';
 
 	final class CDFMySqlClient implements CDFIDataConnection
 	{
