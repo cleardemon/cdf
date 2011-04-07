@@ -10,9 +10,9 @@
 	 * @author demon
 	 */
 
-	require_once dirname(__FILE__) . '../import/savant/Savant3.php';
-	require_once dirname(__FILE__) . '../core/CDFExceptions.php';
-	require_once dirname(__FILE__) . '../core/CDFDataHelper.php';
+	require_once dirname(__FILE__) . '/../import/savant/Savant3.php';
+	require_once dirname(__FILE__) . '/../core/CDFExceptions.php';
+	require_once dirname(__FILE__) . '/../core/CDFDataHelper.php';
 
 	class CDFPage
 	{
