@@ -102,6 +102,7 @@
 					// handle epoch times to be passed as null
 					if($value == null || $value->getTimestamp() == 0)
 						return 'NULL';
+					$value->setTimezone('GMT');
 					return sprintf("'%s'", $value->format('Y-m-d H:i:s')); // format DateTime object to sql
 			}
 

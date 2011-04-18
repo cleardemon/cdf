@@ -127,7 +127,7 @@
 			{
 				if(is_numeric($value))
 					return new DateTime(sprintf('@%d', $value));
-				return new DateTime($value);
+				return new DateTime($value, new DateTimeZone('GMT'));
 			}
 			catch(Exception $ex)
 			{
