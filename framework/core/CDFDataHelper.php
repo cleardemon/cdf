@@ -147,4 +147,46 @@
 				return $value->getTimestamp() == 0 ? false : true;
 			return false;
 		}
+
+		/**
+		 * Returns true if the specified array contains all of the defined keys.
+		 * <code>
+		 * echo CDFDataHelper::hasArrayKeys(array('foo'=>1,'bar'=>2), array('foo','bar'));
+		 * // prints true
+		 * echo CDFDataHelper::hasArrayKeys(array('foo'=>1,'bar'=>2), 'foo', 'bar');
+		 * // also prints true
+		 * echo CDFDataHelper::hasArrayKeys(array('foo'=>1,'bar'=>2), array('moo'));
+		 * // prints false
+		 * </code>
+		 * @static
+		 * @throws CDFInvalidArgumentException
+		 * @param array $array The array to test against.
+		 * @param array|mixed $keys Either an array of key names or a variable arg list of names.
+		 * @return bool
+		 */
+		public static function hasArrayKeys($array, $keys)
+		{
+			// must be an array and must have at least one key to test
+			if(!is_array($array) || func_num_args() < 2)
+				throw new CDFInvalidArgumentException();
+
+			if(!is_array($keys))
+			{
+				// argument is not an array, use variable args
+				$keyNames = array();
+				for($arg = 1; $arg < func_num_args(); $arg++)
+					$keyNames[] = func_get_arg($arg);
+			}
+			else
+				$keyNames = $keys;
+
+			// test the array for the keys
+			foreach($keyNames as $key)
+			{
+				if(!isset($array[$key]))
+					return false;
+			}
+
+			return true;
+		}
 	}
