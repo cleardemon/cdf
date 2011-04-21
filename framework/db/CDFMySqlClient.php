@@ -149,13 +149,14 @@ final class CDFMySqlClient implements CDFIDataConnection
 				return $value === true ? '1' : '0';
 			case CDFSqlDataType::Timestamp:
 				// handle epoch times to be passed as null
+				/** @var $value DateTime */
 				if ($value == null || $value->getTimestamp() == 0)
 					return 'NULL';
 				$value->setTimezone(new DateTimeZone('GMT'));
 				return sprintf("'%s'", $value->format('Y-m-d H:i:s')); // format DateTime object to sql
 		}
 
-		throw new CDFSqlException('CDFMySqlClient: unknown data type in parameter build');
+		throw new CDFSqlException('Unknown data type in parameter build');
 	}
 
 	/**
@@ -207,7 +208,7 @@ final class CDFMySqlClient implements CDFIDataConnection
 	public function Procedure($name)
 	{
 		// build the sql required to call the procedure (lame)
-		$sql = sprintf('call %s', $name);
+		$sql = sprintf('call `%s`', $name);
 		if (count($this->params) > 0) {
 			// parameters available, append each one sequentially to the query
 			$parts = array();
@@ -252,7 +253,7 @@ final class CDFMySqlClient implements CDFIDataConnection
 
 			// check if we're within the number of passed parameters
 			if ($paramPosition == $paramCount)
-				throw new CDFSqlException('CDFMySqlClient: too many parameters passed in query', $sql);
+				throw new CDFSqlException('Too many parameters passed in query', $sql);
 
 			// replace token with value of parameter
 			$param = $this->params[$paramPosition];
@@ -262,7 +263,7 @@ final class CDFMySqlClient implements CDFIDataConnection
 		}
 
 		if ($paramPosition != $paramCount)
-			throw new CDFSqlException("CDFMySqlClient: not enough parameters passed to query (expecting $paramCount, got $paramPosition)", $sql);
+			throw new CDFSqlException("Not enough parameters passed to query (expecting $paramCount, got $paramPosition)", $sql);
 
 		// execute sql
 		return $this->Execute($sql);

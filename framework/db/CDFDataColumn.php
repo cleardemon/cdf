@@ -49,9 +49,9 @@ abstract class CDFDataColumn
 	private $_optionMaxLength = 0; // maximum length of the value (string, data)
 	/** @var int */
 	private $_optionMinLength = 0; // minimum length of the value (string, data)
-	/** @var int */
+	/** @var float */
 	private $_optionMinRange = 0; // minimum range for the value (int, float, timestamp)
-	/** @var int */
+	/** @var float */
 	private $_optionMaxRange = 0; // maximum range for the value (int, float, timestamp)
 
 	/**
@@ -173,7 +173,7 @@ abstract class CDFDataColumn
 	}
 
 	/**
-	 * @return int
+	 * @return float
 	 */
 	final public function getMaxRange()
 	{
@@ -189,7 +189,7 @@ abstract class CDFDataColumn
 	}
 
 	/**
-	 * @return int
+	 * @return float
 	 */
 	final public function getMinRange()
 	{
@@ -211,7 +211,7 @@ abstract class CDFDataColumn
 
 /**
  * Base class for all string-related column types (string, text, data)
- * @throws CDFInvalidArgumentException
+ * @throws CDFColumnDataException
  */
 abstract class CDFDataColumnStringBase extends CDFDataColumn
 {
@@ -222,7 +222,7 @@ abstract class CDFDataColumnStringBase extends CDFDataColumn
 	final public function setValue($value)
 	{
 		if(!is_null($value) && !is_string($value))
-			throw new CDFInvalidArgumentException();
+			throw new CDFColumnDataException($this->getName(), 'Value is not string');
 
 		$this->_value = $value;
 	}
@@ -272,7 +272,7 @@ final class CDFDataColumnData extends CDFDataColumnStringBase
 
 /**
  * Defines an Integer column. (INT, etc)
- * @throws CDFInvalidArgumentException
+ * @throws CDFColumnDataException
  */
 final class CDFDataColumnInteger extends CDFDataColumn
 {
@@ -284,11 +284,12 @@ final class CDFDataColumnInteger extends CDFDataColumn
 	/**
 	 * @param int|null $value
 	 * @return void
+	 * @throws CDFColumnDataException
 	 */
 	public function setValue($value)
 	{
 		if(!is_null($value) && !is_int($value))
-			throw new CDFInvalidArgumentException();
+			throw new CDFColumnDataException($this->getName(), 'Column is not integer');
 
 		$this->_value = $value;
 	}
@@ -305,7 +306,7 @@ final class CDFDataColumnInteger extends CDFDataColumn
 
 /**
  * Defines a Float column. (FLOAT, DOUBLE, etc)
- * @throws CDFInvalidArgumentException
+ * @throws CDFColumnDataException
  */
 final class CDFDataColumnFloat extends CDFDataColumn
 {
@@ -317,11 +318,12 @@ final class CDFDataColumnFloat extends CDFDataColumn
 	/**
 	 * @param float|null $value
 	 * @return void
+	 * @throws CDFColumnDataException
 	 */
 	public function setValue($value)
 	{
 		if(!is_null($value) && !is_float($value))
-			throw new CDFInvalidArgumentException();
+			throw new CDFColumnDataException($this->getName(), 'Column is not float');
 
 		$this->_value = $value;
 	}
@@ -366,18 +368,19 @@ final class CDFDataColumnTimestamp extends CDFDataColumn
 
 /**
  * Defines a Bool column. (BIT, TINYINT, etc)
- * @throws CDFInvalidArgumentException
+ * @throws CDFColumnDataException
  */
 final class CDFDataColumnBool extends CDFDataColumn
 {
 	/**
 	 * @param bool|null $value
 	 * @return void
+	 * @throws CDFColumnDataException
 	 */
 	public function setValue($value)
 	{
 		if(!is_null($value) && !is_bool($value))
-			throw new CDFInvalidArgumentException();
+			throw new CDFColumnDataException($this->getName(), 'Column is not boolean');
 
 		$this->_value = $value;
 	}

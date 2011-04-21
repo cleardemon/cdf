@@ -9,6 +9,8 @@
 		const ValueOutOfRange = 4;
 		const ValueLengthTooShort = 5;
 		const ValueLengthTooLong = 6;
+		const ValueRangeTooFar = 7;
+		const ValueRangeTooNear = 8;
 		const CustomError = 666;
 	}
 
@@ -85,6 +87,12 @@
 						break;
 					case CDFValidationErrorCode::ValueOutOfRange:
 						$msg = "Value is out of the allowed range.";
+						break;
+					case CDFValidationErrorCode::ValueRangeTooFar:
+						$msg = "Value is greater than the maximum allowed.";
+						break;
+					case CDFValidationErrorCode::ValueRangeTooNear:
+						$msg = "Value is less than the minimum allowed.";
 						break;
 				}
 			}
