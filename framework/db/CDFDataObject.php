@@ -598,15 +598,16 @@
 		/**
 		 * Gets a list of column names to use in a query, skipping ones supplied.
 		 * @param string[]|null $skipKeys Columns to skip, or null to add all.
+		 * @param bool $skipIdentity If true, will skip 'Id' field.
 		 * @return string[] List of columns.
 		 */
-		private function getColumnNames($skipKeys = null)
+		private function getColumnNames($skipKeys = null, $skipIdentity = true)
 		{
 			$cols = array();
 			foreach($this->_columns as $col)
 			{
-				// Always skip 'Id' column
-				if(strcasecmp($col->getName(), self::IgnoreColumnIdentity) == 0 ||
+				// Always skip 'Id' column, if told
+				if(($skipIdentity && strcasecmp($col->getName(), self::IgnoreColumnIdentity) == 0) ||
 				   ($skipKeys != null && array_search($col->getName(), $skipKeys) !== false))
 					continue; // skip if specified in keys array
 				$cols[] = sprintf('`%s`', $col->getName()); // surround in back ticks for safety
@@ -696,5 +697,69 @@
 
 			// pass query on to processor
 			$db->Query($sql);
+		}
+
+		/**
+		 * Performs a SELECT query on the table, with the specified where clauses.
+		 * @param CDFIDataConnection $db
+		 * @param string[]|null $whereClauses List of keyed strings (['column']=>'value')
+		 * @param string|null $tableName Name of the table to use, if different than defined for the object.
+		 * @param string[]|null $skipKeys List of columns to skip. If null, will query for all columns (*)
+		 * @return void
+		 */
+		final protected function querySelect(CDFIDataConnection $db, $whereClauses = null, $tableName = null, $skipKeys = null)
+		{
+			// note: this is only intended to do simple queries
+
+			// get table name
+			$tableName = $this->requireTableName($tableName);
+
+			// all queries start with a select
+			$sql = 'select ';
+
+			// skipping columns?
+			if($skipKeys != null && is_array($skipKeys))
+			{
+				// join column list together, include identity field
+				$sql .= implode(',', $this->getColumnNames($skipKeys, false));
+			}
+			else
+				$sql .= '*'; // all columns
+
+			// append table name
+			$sql .= sprintf(' from `%s`', $tableName);
+
+			// where clauses?
+			if($whereClauses != null && is_array($whereClauses))
+			{
+				$wheres = array();
+				foreach($whereClauses as $whereKey => $whereValue)
+				{
+					// find out what type the column is
+					$col = $this->findColumn($whereKey);
+					$type = CDFSqlDataType::String; // blindly assume it will be a string
+					if($col == null)
+					{
+						// if we're searching our own table, then clearly this is an error
+						if($tableName == $this->_tableName)
+							throw new CDFInvalidArgumentException('Invalid where key');
+
+						// if not our own table, just carry on, default to string type
+					}
+					else
+						$type = $col->getDataType();
+
+					// add parameters
+					$db->AddParameter($type, $whereValue);
+					$wheres[] = sprintf('`%s`=?', $whereKey);
+				}
+
+				// add to query
+				if(count($wheres) > 0)
+					$sql .= ' where ' . implode(' and ', $wheres); // always uses 'and'
+			}
+
+			// execute query
+			return $db->Query($sql);
 		}
 	}
