@@ -308,10 +308,7 @@ final class CDFDataColumnInteger extends CDFDataColumn
 	 */
 	public function setValue($value)
 	{
-		if(!is_null($value) && !is_int($value))
-			throw new CDFColumnDataException($this->getName(), 'Column is not integer');
-
-		$this->_value = $value;
+		$this->_value = CDFDataHelper::AsInt($value); // force everything to become an integer
 	}
 
 	/**
@@ -347,10 +344,7 @@ final class CDFDataColumnFloat extends CDFDataColumn
 	 */
 	public function setValue($value)
 	{
-		if(!is_null($value) && !is_float($value))
-			throw new CDFColumnDataException($this->getName(), 'Column is not float');
-
-		$this->_value = $value;
+		$this->_value = CDFDataHelper::AsFloat($value); // force everything to float
 	}
 
 	/**
@@ -419,10 +413,7 @@ final class CDFDataColumnBool extends CDFDataColumn
 	 */
 	public function setValue($value)
 	{
-		if(!is_null($value) && !is_bool($value))
-			throw new CDFColumnDataException($this->getName(), 'Column is not boolean');
-
-		$this->_value = $value;
+		$this->_value = CDFDataHelper::AsBool($value); // force to boolean
 	}
 
 	/**
