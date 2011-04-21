@@ -242,9 +242,14 @@ abstract class CDFDataColumnStringBase extends CDFDataColumn
  */
 final class CDFDataColumnString extends CDFDataColumnStringBase
 {
-	public function __construct($name, $value = null)
+	/**
+	 * @param string $name
+	 * @param string|null $value
+	 * @param array|null $opts
+	 */
+	public function __construct($name, $value = null, $opts = null)
 	{
-		parent::__construct(CDFSqlDataType::String, $name, $value);
+		parent::__construct(CDFSqlDataType::String, $name, $value, $opts);
 	}
 }
 
@@ -253,7 +258,12 @@ final class CDFDataColumnString extends CDFDataColumnStringBase
  */
 final class CDFDataColumnText extends CDFDataColumnStringBase
 {
-	public function __construct($name, $value = null)
+	/**
+	 * @param string $name
+	 * @param string|null $value
+	 * @param array|null $opts
+	 */
+	public function __construct($name, $value = null, $opts = null)
 	{
 		parent::__construct(CDFSqlDataType::Text, $name, $value);
 	}
@@ -264,7 +274,12 @@ final class CDFDataColumnText extends CDFDataColumnStringBase
  */
 final class CDFDataColumnData extends CDFDataColumnStringBase
 {
-	public function __construct($name, $value = null)
+	/**
+	 * @param string $name
+	 * @param string|null $value
+	 * @param array|null $opts
+	 */
+	public function __construct($name, $value = null, $opts = null)
 	{
 		parent::__construct(CDFSqlDataType::Data, $name, $value);
 	}
@@ -276,7 +291,12 @@ final class CDFDataColumnData extends CDFDataColumnStringBase
  */
 final class CDFDataColumnInteger extends CDFDataColumn
 {
-	public function __construct($name, $value = null)
+	/**
+	 * @param string $name
+	 * @param int|null $value
+	 * @param array|null $opts
+	 */
+	public function __construct($name, $value = null, $opts = null)
 	{
 		parent::__construct(CDFSqlDataType::Integer, $name, $value);
 	}
@@ -310,7 +330,12 @@ final class CDFDataColumnInteger extends CDFDataColumn
  */
 final class CDFDataColumnFloat extends CDFDataColumn
 {
-	public function __construct($name, $value = null)
+	/**
+	 * @param string $name
+	 * @param float|null $value
+	 * @param array|null $opts
+	 */
+	public function __construct($name, $value = null, $opts = null)
 	{
 		parent::__construct(CDFSqlDataType::Float, $name, $value);
 	}
@@ -343,7 +368,12 @@ final class CDFDataColumnFloat extends CDFDataColumn
  */
 final class CDFDataColumnTimestamp extends CDFDataColumn
 {
-	public function __construct($name, $value = null)
+	/**
+	 * @param string $name
+	 * @param DateTime|null $value
+	 * @param array|null $opts
+	 */
+	public function __construct($name, $value = null, $opts = null)
 	{
 		parent::__construct(CDFSqlDataType::Timestamp, $name, $value);
 	}
@@ -372,6 +402,16 @@ final class CDFDataColumnTimestamp extends CDFDataColumn
  */
 final class CDFDataColumnBool extends CDFDataColumn
 {
+	/**
+	 * @param string $name
+	 * @param bool|null $value
+	 * @param array|null $opts
+	 */
+	public function __construct($name, $value = null, $opts = null)
+	{
+		parent::__construct(CDFSqlDataType::Bool, $name, $value);
+	}
+
 	/**
 	 * @param bool|null $value
 	 * @return void
