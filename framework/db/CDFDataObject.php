@@ -2,6 +2,7 @@
 
 	require_once 'CDFMySqlClient.php';
 	require_once 'CDFDataObjectValidationError.php';
+	require_once 'CDFDataColumn.php';
 
 	abstract class CDFDataObject
 	{
@@ -80,6 +81,10 @@
 					case 'd':
 					case 'D':
 						$type = CDFSqlDataType::Timestamp;
+						break;
+					case 'r': // Raw data
+					case 'R':
+						$type = CDFSqlDataType::Data;
 						break;
 				}
 				$this->setColumn($col[0], null, $type, array_key_exists(2, $col) ? $col[2] : null);
