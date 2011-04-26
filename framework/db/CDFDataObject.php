@@ -699,6 +699,42 @@
 			$db->Query($sql);
 		}
 
+		private function addWhereClauses(CDFIDataConnection $db, $whereClauses, $tableName)
+		{
+			$sql = '';
+
+			if($whereClauses != null && is_array($whereClauses))
+			{
+				$wheres = array();
+				foreach($whereClauses as $whereKey => $whereValue)
+				{
+					// find out what type the column is
+					$col = $this->findColumn($whereKey);
+					$type = CDFSqlDataType::String; // blindly assume it will be a string
+					if($col == null)
+					{
+						// if we're searching our own table, then clearly this is an error
+						if($tableName == $this->_tableName)
+							throw new CDFInvalidArgumentException('Invalid where key');
+
+						// if not our own table, just carry on, default to string type
+					}
+					else
+						$type = $col->getDataType();
+
+					// add parameters
+					$db->AddParameter($type, $whereValue);
+					$wheres[] = sprintf('`%s`=?', $whereKey);
+				}
+
+				// add to query
+				if(count($wheres) > 0)
+					$sql .= ' where ' . implode(' and ', $wheres); // always uses 'and'
+			}
+
+			return $sql;
+		}
+
 		/**
 		 * Performs a SELECT query on the table, with the specified where clauses.
 		 * @param CDFIDataConnection $db
@@ -731,34 +767,7 @@
 			$sql .= sprintf(' from `%s`', $tableName);
 
 			// where clauses?
-			if($whereClauses != null && is_array($whereClauses))
-			{
-				$wheres = array();
-				foreach($whereClauses as $whereKey => $whereValue)
-				{
-					// find out what type the column is
-					$col = $this->findColumn($whereKey);
-					$type = CDFSqlDataType::String; // blindly assume it will be a string
-					if($col == null)
-					{
-						// if we're searching our own table, then clearly this is an error
-						if($tableName == $this->_tableName)
-							throw new CDFInvalidArgumentException('Invalid where key');
-
-						// if not our own table, just carry on, default to string type
-					}
-					else
-						$type = $col->getDataType();
-
-					// add parameters
-					$db->AddParameter($type, $whereValue);
-					$wheres[] = sprintf('`%s`=?', $whereKey);
-				}
-
-				// add to query
-				if(count($wheres) > 0)
-					$sql .= ' where ' . implode(' and ', $wheres); // always uses 'and'
-			}
+			$sql .= $this->addWhereClauses($db, $whereClauses, $tableName);
 
 			// order by?
 			if($orderClauses != null && is_array($orderClauses))
@@ -775,5 +784,23 @@
 
 			// execute query
 			return $db->Query($sql);
+		}
+
+		/**
+		 * Performs a DELETE FROM query on the table, with the specified where clauses.
+		 * @param CDFIDataConnection $db
+		 * @param string[]|null $whereClauses List of keyed strings (['column']=>'value')
+		 * @param string|null $tableName Name of the table to use, if different than defined for the object.
+		 * @return array
+		 */
+		final protected function queryDelete(CDFIDataConnection $db, $whereClauses = null, $tableName = null)
+		{
+			// note: whereClauses can be null - be warned!
+
+			// get table
+			$tableName = $this->requireTableName($tableName);
+
+			// do the query
+			return $db->Query(sprintf('delete from `%s`%s', $tableName, $this->addWhereClauses($db, $whereClauses, $tableName)));;
 		}
 	}
