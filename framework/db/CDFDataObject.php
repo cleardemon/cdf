@@ -703,11 +703,12 @@
 		 * Performs a SELECT query on the table, with the specified where clauses.
 		 * @param CDFIDataConnection $db
 		 * @param string[]|null $whereClauses List of keyed strings (['column']=>'value')
+		 * @param bool[]|null $orderClauses List of columns to order by. True for ascended, false for descending.
 		 * @param string|null $tableName Name of the table to use, if different than defined for the object.
 		 * @param string[]|null $skipKeys List of columns to skip. If null, will query for all columns (*)
-		 * @return void
+		 * @return array
 		 */
-		final protected function querySelect(CDFIDataConnection $db, $whereClauses = null, $tableName = null, $skipKeys = null)
+		final protected function querySelect(CDFIDataConnection $db, $whereClauses = null, $orderClauses = null, $tableName = null, $skipKeys = null)
 		{
 			// note: this is only intended to do simple queries
 
@@ -757,6 +758,19 @@
 				// add to query
 				if(count($wheres) > 0)
 					$sql .= ' where ' . implode(' and ', $wheres); // always uses 'and'
+			}
+
+			// order by?
+			if($orderClauses != null && is_array($orderClauses))
+			{
+				$orders = array();
+				// build list of columns and their sort orders
+				foreach($orderClauses as $orderKey => $orderAscended)
+					$orders[] = sprintf('``%s` %s', $orderKey, $orderAscended ? 'ASC' : 'DESC');
+
+				// add to query
+				if(count($orders) > 0)
+					$sql .= ' order by ' . implode(', ', $orders);
 			}
 
 			// execute query
