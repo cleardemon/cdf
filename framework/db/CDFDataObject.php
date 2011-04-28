@@ -549,7 +549,7 @@
 
 		/**
 		 * Returns a list of errors since the last call to doValidation.
-		 * @return array Zero or more CDFDataObjectValidationError's
+		 * @return CDFDataObjectValidationError[] Zero or more CDFDataObjectValidationError's
 		 */
 		final public function getValidationErrors()
 		{
