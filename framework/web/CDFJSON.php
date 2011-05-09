@@ -129,6 +129,15 @@ class CDFJsonRequest
 		$this->parseCallback();
 		$this->_parsed = true;
 	}
+
+	/**
+	 * Returns true to an implementation if a parse has occurred.
+	 * @return bool
+	 */
+	protected function isParsed()
+	{
+		return $this->_parsed;
+	}
 }
 
 /**
