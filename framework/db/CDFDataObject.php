@@ -801,6 +801,6 @@
 			$tableName = $this->requireTableName($tableName);
 
 			// do the query
-			return $db->Query(sprintf('delete from `%s`%s', $tableName, $this->addWhereClauses($db, $whereClauses, $tableName)));;
+			return $db->Query(sprintf('delete from `%s`%s', $tableName, $this->addWhereClauses($db, $whereClauses, $tableName)));
 		}
 	}

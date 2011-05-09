@@ -74,8 +74,20 @@ final class CDFSqlException extends Exception
 	}
 }
 
+final class CDFMailMessageException extends Exception
+{
 
-	final class CDFMailMessageException extends Exception
+}
+
+
+/**
+ * Thrown whenever there is a failure during handling of a JSON request or response. Can also be thrown by application
+ * implementations.
+ */
+final class CDFJsonException extends Exception
+{
+	public function __construct($msg, $errorCode)
 	{
-
+		parent::__construct($msg, $errorCode);
 	}
+}
