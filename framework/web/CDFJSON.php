@@ -126,8 +126,8 @@ class CDFJsonRequest
 		}
 
 		// call the implementation
-		$this->parseCallback();
 		$this->_parsed = true;
+		$this->parseCallback();
 	}
 
 	/**
@@ -154,7 +154,7 @@ class CDFJsonResponse
 	 * @param mixed $value
 	 * @return void
 	 */
-	final public function setValue($key, $value)
+	public function setValue($key, $value)
 	{
 		$this->_jsonData[$key] = $value;
 	}
@@ -164,7 +164,7 @@ class CDFJsonResponse
 	 * @param string $key
 	 * @return array|null
 	 */
-	final public function getValue($key)
+	public function getValue($key)
 	{
 		return isset($this->_jsonData[$key]) ? $this->_jsonData[$key] : null;
 	}
