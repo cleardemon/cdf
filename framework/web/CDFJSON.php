@@ -56,6 +56,36 @@ class CDFJsonRequest
 	}
 
 	/**
+	 * Retrieves a value from the parsed data, by numeric index.
+	 * @param int $index
+	 * @return mixed|null
+	 * @throws CDFInvalidOperationException
+	 */
+	public function getValueByIndex($index)
+	{
+		if(!$this->_parsed)
+			throw new CDFInvalidOperationException();
+		$index = CDFDataHelper::AsInt($index);
+		if($this->_jsonData == null || !isset($this->_jsonData[$index]))
+			return null;
+
+		return $this->_jsonData[$index];
+	}
+
+	/**
+	 * Returns the number of top-level items in the parsed data.
+	 * @throws CDFInvalidOperationException
+	 * @return int
+	 */
+	public function getSize()
+	{
+		if(!$this->_parsed)
+			throw new CDFInvalidOperationException();
+
+		return count($this->_jsonData);
+	}
+
+	/**
 	 * Parses the request from the raw HTTP POST body. Note that it must be sent with the correct content type header.
 	 * @return void
 	 * @throw CDFJsonException
