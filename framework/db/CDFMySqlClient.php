@@ -4,6 +4,8 @@
  * @package CDF
  */
 
+require_once dirname(__FILE__) . '/../core/CDFExceptions.php';
+require_once dirname(__FILE__) . '/../core/CDFDataHelper.php';
 require_once 'CDFIDataConnection.php';
 
 /**
