@@ -109,5 +109,12 @@
 		 * @return int
 		 */
 		public function getAffectedRowCount();
+		/**
+		 * Escapes the input parameter as per connection rules. This is only useful for when not using parameters.
+		 * @abstract
+		 * @param string $var
+		 * @return string
+		 */
+		public function escapeVariable($var);
 	}
 

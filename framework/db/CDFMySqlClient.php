@@ -289,4 +289,12 @@ final class CDFMySqlClient implements CDFIDataConnection
 	{
 		return $this->_lastRowCount;
 	}
+
+	public function escapeVariable($input)
+	{
+		if(!$this->HasConnection())
+			throw new CDFSqlException('Cannot escape input as  connection not open');
+
+		return mysql_real_escape_string($input, $this->handle);
+	}
 }
