@@ -87,9 +87,10 @@
 		 * Executes a SQL query.
 		 * @abstract
 		 * @param string $sql
+		 * @param bool $skipParameters If true, do not process ? in queries.
 		 * @return array
 		 */
-		public function Query($sql);
+		public function Query($sql, $skipParameters = false);
 		/**
 		 * Executes a stored procedure.
 		 * @abstract

@@ -238,34 +238,38 @@ final class CDFMySqlClient implements CDFIDataConnection
 	 *	// this expands to: select * from Users where Username='foo' AND Type=12345
 	 * </code>
 	 * @param $sql string SQL query to execute.
+	 * @param bool $skipParameters If true, do not process ? in queries. Advanced use.
 	 * @return array Array of rows/columns or false on failure.
 	 */
-	public function Query($sql)
+	public function Query($sql, $skipParameters = false)
 	{
-		// format parameters
-		$paramPosition = 0;
-		$paramCount = count($this->params);
-		$tokenPosition = 0;
-		for (; ;)
+		if(!$skipParameters)
 		{
-			// find first/next occurrence of token
-			$tokenPosition = strpos($sql, CDFIDataConnection_TokenCharacter, $tokenPosition);
-			if ($tokenPosition === false)
-				break; // no more tokens
+			// format parameters
+			$paramPosition = 0;
+			$paramCount = count($this->params);
+			$tokenPosition = 0;
+			for (; ;)
+			{
+				// find first/next occurrence of token
+				$tokenPosition = strpos($sql, CDFIDataConnection_TokenCharacter, $tokenPosition);
+				if ($tokenPosition === false)
+					break; // no more tokens
 
-			// check if we're within the number of passed parameters
-			if ($paramPosition == $paramCount)
-				throw new CDFSqlException('Too many parameters passed in query', $sql);
+				// check if we're within the number of passed parameters
+				if ($paramPosition == $paramCount)
+					throw new CDFSqlException('Too many parameters passed in query', $sql);
 
-			// replace token with value of parameter
-			$param = $this->params[$paramPosition];
-			$sql = substr_replace($sql, $this->FormatValue($param[0], $param[1]), $tokenPosition, 1);
+				// replace token with value of parameter
+				$param = $this->params[$paramPosition];
+				$sql = substr_replace($sql, $this->FormatValue($param[0], $param[1]), $tokenPosition, 1);
 
-			$paramPosition++; // next parameter
+				$paramPosition++; // next parameter
+			}
+
+			if ($paramPosition != $paramCount)
+				throw new CDFSqlException("Not enough parameters passed to query (expecting $paramCount, got $paramPosition)", $sql);
 		}
-
-		if ($paramPosition != $paramCount)
-			throw new CDFSqlException("Not enough parameters passed to query (expecting $paramCount, got $paramPosition)", $sql);
 
 		// execute sql
 		return $this->Execute($sql);
