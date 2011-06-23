@@ -244,7 +244,7 @@
 		 * @throws CDFColumnDataException
 		 * @param string $key
 		 * @param bool $allowNull
-		 * @return string|null
+		 * @return string
 		 */
 		final protected function getColumnString($key, $allowNull = false)
 		{
@@ -259,7 +259,7 @@
 		 * @throws CDFColumnDataException
 		 * @param string $key
 		 * @param bool $allowNull
-		 * @return int|null
+		 * @return int
 		 */
 		final protected function getColumnInteger($key, $allowNull = false)
 		{
@@ -274,7 +274,7 @@
 		 * @throws CDFColumnDataException
 		 * @param string $key
 		 * @param bool $allowNull
-		 * @return float|null
+		 * @return float
 		 */
 		final protected function getColumnFloat($key, $allowNull = false)
 		{
@@ -289,7 +289,7 @@
 		 * @throws CDFColumnDataException
 		 * @param string $key
 		 * @param bool $allowNull
-		 * @return bool|null
+		 * @return bool
 		 */
 		final protected function getColumnBool($key, $allowNull = false)
 		{
