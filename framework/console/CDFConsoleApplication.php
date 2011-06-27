@@ -49,7 +49,6 @@ final class CDFConsoleApplication
 			{
 				// generate a filename
 				$fName = sprintf('%s/%s.log', $path, date('Ymd.His'));
-				echo $fName;
 				$res = @fopen($fName, 'wt');
 				if($res !== false)
 					$this->_logFile = $res;
@@ -83,7 +82,11 @@ final class CDFConsoleApplication
 		// output message
 		$msg = sprintf("[%s]: %s\n", date('H:i:s.u'), $msg);
 		if($this->_logFile != null)
+		{
 			@fwrite($this->_logFile, $msg);
+			if($this->getDebug())
+				echo $msg; // always write to std out if debug
+		}
 		else
 			echo $msg; // std out
 	}
