@@ -692,7 +692,7 @@
 			if($where != null)
 			{
 				$db->AddParameter($where->getDataType(), $where->getValue());
-				$sql .= ' where `%s`=' . CDFIDataConnection_TokenCharacter;
+				$sql .= sprintf(' where `%s`=', $where->getName()) . CDFIDataConnection_TokenCharacter;
 			}
 
 			// pass query on to processor
