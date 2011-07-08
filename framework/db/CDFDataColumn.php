@@ -369,7 +369,7 @@ final class CDFDataColumnTimestamp extends CDFDataColumn
 	 */
 	public function __construct($name, $value = null, $opts = null)
 	{
-		parent::__construct(CDFSqlDataType::Timestamp, $name, $value);
+		parent::__construct(CDFSqlDataType::Timestamp, $name, CDFDataHelper::AsDateTime($value));
 	}
 	/**
 	 * @param int|DateTime|null $value

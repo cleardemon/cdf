@@ -398,6 +398,9 @@
 		 */
 		private function testValidationNumberRange($col, $number, $stopOnError)
 		{
+			if($col->getMinRange() == 0 && $col->getMaxRange() == 0)
+				return true; // not defined
+			
 			$value = $col->getMaxRange();
 			if($value != 0 && $number > $value)
 			{
