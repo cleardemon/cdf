@@ -702,6 +702,9 @@
 			$db->Query($sql);
 		}
 
+		// This supports the following scenarios:
+		// array('column' => 'value', 'column2' => 'value2')
+		// array('column', 'value', 'column', 'value2') // note same column key
 		private function addWhereClauses(CDFIDataConnection $db, $whereClauses, $tableName)
 		{
 			$sql = '';
@@ -709,8 +712,21 @@
 			if($whereClauses != null && is_array($whereClauses))
 			{
 				$wheres = array();
-				foreach($whereClauses as $whereKey => $whereValue)
+				//foreach($whereClauses as $whereKey => $whereValue)
+				reset($whereClauses);
+				while($whereValue = current($whereClauses))
 				{
+					// find the key
+					$whereKey = key($whereClauses);
+					if(is_numeric($whereKey))
+					{
+						// not using a keyed array
+						$whereKey = $whereValue;
+						next($whereClauses);
+						$whereValue = current($whereClauses);
+						if($whereValue === false)
+							throw new CDFInvalidArgumentException(sprintf('Missing value for key %s', $whereKey));
+					}
 					// find out what type the column is
 					$col = $this->findColumn($whereKey);
 					$type = CDFSqlDataType::String; // blindly assume it will be a string
@@ -728,6 +744,8 @@
 					// add parameters
 					$db->AddParameter($type, $whereValue);
 					$wheres[] = sprintf('`%s`=?', $whereKey);
+
+					next($whereClauses);
 				}
 
 				// add to query
