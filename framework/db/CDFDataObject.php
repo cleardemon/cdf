@@ -796,7 +796,7 @@
 				$orders = array();
 				// build list of columns and their sort orders
 				foreach($orderClauses as $orderKey => $orderAscended)
-					$orders[] = sprintf('``%s` %s', $orderKey, $orderAscended ? 'ASC' : 'DESC');
+					$orders[] = sprintf('`%s` %s', $orderKey, $orderAscended ? 'ASC' : 'DESC');
 
 				// add to query
 				if(count($orders) > 0)
