@@ -711,8 +711,8 @@
 
 			if($whereClauses != null && is_array($whereClauses))
 			{
-				$wheres = array();
-				//foreach($whereClauses as $whereKey => $whereValue)
+				// group all the possible values for each key
+				$whereValues = array(); // $whereValues[$key] = array($values...)
 				reset($whereClauses);
 				while($whereValue = current($whereClauses))
 				{
@@ -727,30 +727,57 @@
 						if($whereValue === false)
 							throw new CDFInvalidArgumentException(sprintf('Missing value for key %s', $whereKey));
 					}
-					// find out what type the column is
-					$col = $this->findColumn($whereKey);
-					$type = CDFSqlDataType::String; // blindly assume it will be a string
-					if($col == null)
-					{
-						// if we're searching our own table, then clearly this is an error
-						if($tableName == $this->_tableName)
-							throw new CDFInvalidArgumentException('Invalid where key');
 
-						// if not our own table, just carry on, default to string type
-					}
-					else
-						$type = $col->getDataType();
-
-					// add parameters
-					$db->AddParameter($type, $whereValue);
-					$wheres[] = sprintf('`%s`=?', $whereKey);
+					// add this value under the key
+					$whereValues[$whereKey][] = $whereValue;
 
 					next($whereClauses);
 				}
 
 				// add to query
-				if(count($wheres) > 0)
-					$sql .= ' where ' . implode(' and ', $wheres); // always uses 'and'
+				if(count($whereValues) > 0)
+				{
+					$sql .= ' where ';
+					$sqlFragments = array();
+					foreach($whereValues as $key => $values)
+					{
+						// find out what type the column is
+						$col = $this->findColumn($key);
+						$type = CDFSqlDataType::String; // blindly assume it will be a string
+						if($col == null)
+						{
+							// if we're searching our own table, then clearly this is an error
+							if($tableName == $this->_tableName)
+								throw new CDFInvalidArgumentException('Invalid where key');
+
+							// if not our own table, just carry on, default to string type
+						}
+						else
+							$type = $col->getDataType();
+
+						// if more than one value for this key, do an 'or' query
+						// TODO: change this so it can be configured at column level ('and'/'or')
+						if(count($values) > 1)
+						{
+							// use 'or'
+							$valueList = array();
+							foreach($values as $value)
+							{
+								$db->AddParameter($type, $value);
+								$valueList[] = sprintf('`%s`=?', $key);
+							}
+							$sqlFragments[] = sprintf('(%s)', implode(' or ', $valueList));
+						}
+						elseif(count($values) == 1)
+						{
+							// single value
+							$db->AddParameter($type, $values[0]);
+							$sqlFragments[] = sprintf('`%s`=?', $key);
+						}
+					}
+					// join all the fragments together with 'and'
+					$sql .= implode(' and ', $sqlFragments);
+				}
 			}
 
 			return $sql;
