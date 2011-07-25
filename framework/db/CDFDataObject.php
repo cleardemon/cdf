@@ -714,11 +714,15 @@
 				// group all the possible values for each key
 				$whereValues = array(); // $whereValues[$key] = array($values...)
 				reset($whereClauses);
-				while($whereValue = current($whereClauses))
+				for(;;)
 				{
+					$whereValue = current($whereClauses);
+					if($whereValue === false)
+						break;
+
 					// find the key
 					$whereKey = key($whereClauses);
-					if(is_numeric($whereKey))
+					if(is_int($whereKey))
 					{
 						// not using a keyed array
 						$whereKey = $whereValue;
