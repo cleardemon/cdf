@@ -105,6 +105,10 @@
 				return false;
 			if(is_string($value))
 			{
+				// special case to handle BIT fields in a database
+				if($value[0] == chr(1))
+					return true;
+
 				$s = trim(strtolower($value));
 				return ($s === '1' || $s === 'true' || $s === 'on' || $s === 'yes') ? true : false;
 			}
