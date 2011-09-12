@@ -374,7 +374,7 @@ final class CDFDataColumnTimestamp extends CDFDataColumn
 	public function __construct($name, $value = null, $opts = null)
 	{
 		// parse options
-		$this->_timeZone = null;
+		$this->_timeZone = new DateTimeZone('GMT');
 		if($opts != null && isset($opts[CDFDataColumnOption::TimeZone]))
 		{
 			// use the specified timezone
