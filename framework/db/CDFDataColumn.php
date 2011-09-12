@@ -27,6 +27,8 @@ interface CDFDataColumnOption
 	const MaxRange = 'Mr';
 	// minimum range for the value (int, float, timestamp)
 	const MinRange = 'mr';
+	// for DateTime fields, if unset will default to GMT
+	const TimeZone = 'tz';
 }
 
 /**
@@ -362,6 +364,8 @@ final class CDFDataColumnFloat extends CDFDataColumn
  */
 final class CDFDataColumnTimestamp extends CDFDataColumn
 {
+	private $_timeZone;
+
 	/**
 	 * @param string $name
 	 * @param DateTime|null $value
@@ -369,7 +373,19 @@ final class CDFDataColumnTimestamp extends CDFDataColumn
 	 */
 	public function __construct($name, $value = null, $opts = null)
 	{
-		parent::__construct(CDFSqlDataType::Timestamp, $name, CDFDataHelper::AsDateTime($value));
+		// parse options
+		$this->_timeZone = null;
+		if($opts != null && isset($opts[CDFDataColumnOption::TimeZone]))
+		{
+			// use the specified timezone
+			$tz = $opts[CDFDataColumnOption::TimeZone];
+			if($tz instanceof DateTimeZone)
+				$this->_timeZone = $tz;
+			else if(is_string($tz))
+				$this->_timeZone = new DateTimeZone($tz);
+		}
+
+		parent::__construct(CDFSqlDataType::Timestamp, $name, CDFDataHelper::AsDateTime($value, $this->_timeZone));
 	}
 	/**
 	 * @param int|DateTime|null $value
@@ -377,7 +393,7 @@ final class CDFDataColumnTimestamp extends CDFDataColumn
 	 */
 	public function setValue($value)
 	{
-		$this->_value = CDFDataHelper::AsDateTime($value);
+		$this->_value = CDFDataHelper::AsDateTime($value, $this->_timeZone);
 	}
 
 	/**
