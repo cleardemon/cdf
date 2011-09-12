@@ -374,15 +374,13 @@ final class CDFDataColumnTimestamp extends CDFDataColumn
 	public function __construct($name, $value = null, $opts = null)
 	{
 		// parse options
-		$this->_timeZone = new DateTimeZone('GMT');
+		$this->_timeZone = 'GMT';
 		if($opts != null && isset($opts[CDFDataColumnOption::TimeZone]))
 		{
 			// use the specified timezone
 			$tz = $opts[CDFDataColumnOption::TimeZone];
-			if($tz instanceof DateTimeZone)
+			if(is_string($tz))
 				$this->_timeZone = $tz;
-			else if(is_string($tz))
-				$this->_timeZone = new DateTimeZone($tz);
 		}
 
 		parent::__construct(CDFSqlDataType::Timestamp, $name, CDFDataHelper::AsDateTime($value, $this->_timeZone));
