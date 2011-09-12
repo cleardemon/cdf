@@ -119,9 +119,10 @@
 		/**
 		 * Returns the specified value as a DateTime object.  Will equal the Epoch if fails to parse.
 		 * @param mixed $value
+		 * @param string $timezone Defaults to GMT. Pass null to use system default
 		 * @return DateTime
 		 */
-		public static function AsDateTime($value)
+		public static function AsDateTime($value, $timezone = 'GMT')
 		{
 			if($value instanceof DateTime) // if already a DateTime object, just return it
 				return $value;
@@ -129,9 +130,10 @@
 				return new DateTime('@0');
 			try
 			{
+				$tz = $timezone == null ? null : new DateTimeZone($timezone);
 				if(is_numeric($value))
-					return new DateTime(sprintf('@%d', $value));
-				return new DateTime($value, new DateTimeZone('GMT'));
+					return new DateTime(sprintf('@%d', $value), $tz);
+				return new DateTime($value, $tz);
 			}
 			catch(Exception $ex)
 			{
