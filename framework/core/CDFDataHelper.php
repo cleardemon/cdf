@@ -125,7 +125,16 @@
 		public static function AsDateTime($value, $timezone = 'GMT')
 		{
 			if($value instanceof DateTime) // if already a DateTime object, just return it
+			{
+				// check its timezone first
+				$tz = $timezone == null ? ini_get('date.timezone') : $timezone;
+				/** @var $value DateTime */
+				if($value->getTimezone()->getName() != $tz)
+					// convert to GMT then to the timezone
+					return CDFDataHelper::AsDateTime($value->getTimestamp(), $tz);
+				// timezone is the same
 				return $value;
+			}
 			if(is_null($value) || (is_string($value) && strlen($value) < 1))
 				return new DateTime('@0');
 			try
