@@ -159,7 +159,11 @@
 		public static function hasDateTime($value)
 		{
 			if($value instanceof DateTime)
-				return $value->getTimestamp() == 0 ? false : true;
+			{
+				/** @var $value DateTime */
+				$ts = $value->getTimestamp(); // if negative, returns false
+				return $ts !== false && $ts > 0;
+			}
 			return false;
 		}
 
