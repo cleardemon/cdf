@@ -128,21 +128,33 @@ final class CDFMySqlClient implements CDFIDataConnection
 		$this->_lastRowCount = 0;
 	}
 
+	const ValueMagicCharacter = '\x1A'; // chr(26)
+
 	/**
 	 * Formats a value appropriately for use in a MySQL query.
 	 * @throws CDFSqlException
 	 * @param int $type
 	 * @param mixed $value
+	 * @param bool $changedValue
 	 * @return string
 	 */
-	private function FormatValue($type, $value)
+	private function FormatValue($type, $value, &$changedValue)
 	{
+		$changedValue = false;
 		switch ($type)
 		{
 			case CDFSqlDataType::String:
 			case CDFSqlDataType::Text:
 			case CDFSqlDataType::Data: // blob data is a string in php
+			{
+				// if value has an occurrence of the token, escape it out to something that can't be typed
+				$count = 0;
+				$value = str_replace(CDFIDataConnection_TokenCharacter, self::ValueMagicCharacter, $value, $count);
+				if($count > 0)
+					// caller MUST remove the magic character before passing to SQL!
+					$changedValue = true;
 				return sprintf("'%s'", mysql_real_escape_string($value));
+			}
 			case CDFSqlDataType::Integer:
 				return sprintf("%d", $value);
 			case CDFSqlDataType::Float:
@@ -211,14 +223,25 @@ final class CDFMySqlClient implements CDFIDataConnection
 	{
 		// build the sql required to call the procedure (lame)
 		$sql = sprintf('call `%s`', $name);
-		if (count($this->params) > 0) {
+		if (count($this->params) > 0)
+		{
 			// parameters available, append each one sequentially to the query
 			$parts = array();
+			$changed = false;
 			foreach ($this->params as $type => $value)
-				$parts[] = $this->FormatValue($type, $value);
+			{
+				$didChange = false;
+				$parts[] = $this->FormatValue($type, $value, $didChange);
+				if($didChange == true)
+					$changed = true;
+			}
 
 			// append parts to the query
 			$sql .= ' ' . implode(', ', $parts);
+
+			// remove magic escaping
+			if($changed)
+				$sql = str_replace(self::ValueMagicCharacter, CDFIDataConnection_TokenCharacter, $sql);
 		}
 
 		// run the query
@@ -245,6 +268,7 @@ final class CDFMySqlClient implements CDFIDataConnection
 	{
 		if(!$skipParameters)
 		{
+			$hasMagicChar = false;
 			// format parameters
 			$paramPosition = 0;
 			$paramCount = count($this->params);
@@ -262,13 +286,20 @@ final class CDFMySqlClient implements CDFIDataConnection
 
 				// replace token with value of parameter
 				$param = $this->params[$paramPosition];
-				$sql = substr_replace($sql, $this->FormatValue($param[0], $param[1]), $tokenPosition, 1);
+				$didChange = false;
+				$sql = substr_replace($sql, $this->FormatValue($param[0], $param[1], $didChange), $tokenPosition, 1);
+				if($didChange)
+					$hasMagicChar = true;
 
 				$paramPosition++; // next parameter
 			}
 
 			if ($paramPosition != $paramCount)
 				throw new CDFSqlException("Not enough parameters passed to query (expecting $paramCount, got $paramPosition)", $sql);
+
+			// remove the magic characters if any, returning the question marks
+			if($hasMagicChar)
+				$sql = str_replace(self::ValueMagicCharacter, CDFIDataConnection_TokenCharacter, $sql);
 		}
 
 		// execute sql

@@ -109,14 +109,15 @@
 		 * Sets a value of a column to be a string, passing it to AsStringSafe first. Use with String and Text fields.
 		 * @param string $key
 		 * @param mixed $value
+		 * @param bool $stripHTML
 		 */
-		final protected function setColumnString($key, $value)
+		final protected function setColumnString($key, $value, $stripHTML = true)
 		{
 			$col = $this->findColumn($key);
 			if($col === null)
 				return;
 
-			$col->setValue(CDFDataHelper::AsStringSafe($value));
+			$col->setValue(CDFDataHelper::AsStringSafe($value, $stripHTML));
 		}
 
 		/**
