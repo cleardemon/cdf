@@ -603,9 +603,10 @@
 		 * Gets a list of column names to use in a query, skipping ones supplied.
 		 * @param string[]|null $skipKeys Columns to skip, or null to add all.
 		 * @param bool $skipIdentity If true, will skip 'Id' field.
+		 * @param bool $applyTicks If true, wraps column names in SQL back ticks.
 		 * @return string[] List of columns.
 		 */
-		private function getColumnNames($skipKeys = null, $skipIdentity = true)
+		private function getColumnNames($skipKeys = null, $skipIdentity = true, $applyTicks = true)
 		{
 			$cols = array();
 			foreach($this->_columns as $col)
@@ -614,7 +615,10 @@
 				if(($skipIdentity && strcasecmp($col->getName(), self::IgnoreColumnIdentity) == 0) ||
 				   ($skipKeys != null && array_search($col->getName(), $skipKeys) !== false))
 					continue; // skip if specified in keys array
-				$cols[] = sprintf('`%s`', $col->getName()); // surround in back ticks for safety
+				if($applyTicks)
+					$cols[] = sprintf('`%s`', $col->getName()); // surround in back ticks for safety
+				else
+					$cols[] = $col->getName();
 			}
 			return $cols;
 		}
@@ -855,5 +859,16 @@
 
 			// do the query
 			return $db->Query(sprintf('delete from `%s`%s', $tableName, $this->addWhereClauses($db, $whereClauses, $tableName)));
+		}
+
+		/**
+		 * Returns an array containing all the defined column names for this data object.
+		 * Intended usage for this is to include in a custom SQL SELECT query.
+		 * @param bool $useTicks If true, will wrap column names around back tick characters (escaped for SQL).
+		 * @return string[]
+		 */
+		final public function getAllColumnNames($useTicks = true)
+		{
+			return $this->getColumnNames(null, false, $useTicks);
 		}
 	}
