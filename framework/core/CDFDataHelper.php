@@ -106,7 +106,7 @@
 			if(is_string($value))
 			{
 				// special case to handle BIT fields in a database
-				if($value[0] == chr(1))
+				if(strlen($value) > 0 && $value[0] == chr(1))
 					return true;
 
 				$s = trim(strtolower($value));
