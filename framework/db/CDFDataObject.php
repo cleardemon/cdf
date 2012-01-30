@@ -326,10 +326,11 @@
 		 * Note that column names will want to match those as in the database table otherwise this won't work as expected.
 		 *
 		 * @param CDFIDataConnection $db An open database connection
-		 * @param array $keys  List of column keys to NOT add. If null, adds all.
+		 * @param array $keys List of column keys. Behaviour affected by $include. If null, adds all.
+		 * @param $include bool If true, ONLY columns in $keys will be added. If false, columns in $keys will be SKIPPED.
 		 * @return int Number of columns added to the query.
 		 */
-		final protected function addColumnsToParameters(CDFIDataConnection $db, $keys = null)
+		final protected function addColumnsToParameters(CDFIDataConnection $db, $keys = null, $include = false)
 		{
 			if($this->_columns == null || $db == null)
 				return 0;
@@ -339,8 +340,14 @@
 			{
 				if(strcasecmp($col->getName(), self::IgnoreColumnIdentity) == 0)
 					continue; // skip identity column
-				if($keys != null && array_search($col->getName(), $keys) !== false)
-					continue; // skip if specified in keys array
+				if($keys != null)
+				{
+					$search = array_search($col->getName(), $keys);
+					if($include == false && $search !== false)
+						continue; // skip column if excluding (default)
+					if($include == true && $search === false)
+						continue; // skip column if including
+				}
 				$db->AddParameter($col->getDataType(), $col->getValue());
 				$num++;
 			}
