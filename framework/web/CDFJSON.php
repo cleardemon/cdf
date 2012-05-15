@@ -87,8 +87,9 @@ class CDFJsonRequest
 
 	/**
 	 * Parses the request from the raw HTTP POST body. Note that it must be sent with the correct content type header.
+	 *
+	 * @throws CDFJsonException
 	 * @return void
-	 * @throw CDFJsonException
 	 */
 	final public function loadFromPOST()
 	{
@@ -128,8 +129,9 @@ class CDFJsonRequest
 
 	/**
 	 * Meat of the parser.
-	 * @throws JsonException
+	 *
 	 * @param string $input
+	 * @throws CDFJsonException
 	 * @return void
 	 */
 	private function parse($input)
@@ -205,7 +207,7 @@ class CDFJsonResponse
 	 */
 	public function toJSON()
 	{
-		return json_encode($this->_jsonData);
+		return json_encode(array_map(function($i) { return is_string($i) ? utf8_encode($i) : $i; }, $this->_jsonData));
 	}
 
 	/**
