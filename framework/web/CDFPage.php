@@ -153,9 +153,10 @@ class CDFPage
 	 * Begins a session for the current request. Returns false if cannot be started (to which request should be aborted)
 	 * @param string $sName Name of the session, used in the session cookie. (default is 'SESSION')
 	 * @param bool $secure True allows for better protection against session hijack. (default is true)
+	 * @param string $cookieDomain Specifies the domain to set for the session cookie (default null, current site)
 	 * @return bool
 	 */
-	public function startSession($sName = 'SESSION', $secure = true)
+	public function startSession($sName = 'SESSION', $secure = true, $cookieDomain = null)
 	{
 		static $kFixationRemoteAddress = 'FixationRemoteAddress';
 		static $kFixationRemoteAgent = 'FixationRemoteAgent';
@@ -165,9 +166,9 @@ class CDFPage
 			// forcefully disable potentially insecure session options
 			ini_set('session.use_only_cookies', 1);
 			ini_set('session.use_trans_sid', 0);
-			// configure cookie
-			session_set_cookie_params(0, '/', null, true, true);
 		}
+		// configure cookie
+		session_set_cookie_params(0, '/', $cookieDomain, $secure, $secure);
 
 		// record some detail relating to the client request for fixation
 		$ipHash = $this->getIPAddressHash($_SERVER['REMOTE_ADDR']);

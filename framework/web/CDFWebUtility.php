@@ -107,4 +107,31 @@
 			$parsedUrl = parse_url(CDFDataHelper::AsString($url));
 			return isset($parsedUrl['query']) ? explode('&', $parsedUrl['query']) : array();
 		}
+
+		/**
+		 * Returns the domain name (example.co.uk) from a hostname (www.foo.example.co.uk).
+		 * @static
+		 * @param $host string Hostname to parse
+		 * @return null|string
+		 */
+		public static function getDomainFromHost($host)
+		{
+			// break apart host string
+			$bits = explode('/', $host);
+			// if first contains a colon, url has been specified
+			if($bits[0] == ':')
+				$host = $bits[2]; // skip scheme and ://
+			// break apart host name at dots
+			$bits = explode('.', $host);
+			$i = count($bits) - 3;
+			if($i < 2)                  /// TODO: Needs a bit of cleanup
+				return null;
+			if(strlen($bits[($i + 2)]) == 2)
+				$url = $bits[$i] . '.' . $bits[($i + 1)] . '.' . $bits[($i + 2)];
+			else if(strlen($bits[($i + 2)]) == 0)
+				$url = $bits[($i)] . '.' . $bits[($i + 1)];
+			else
+				$url = $bits[($i + 1)] . '.' . $bits[($i + 2)];
+			return $url;
+		}
 	 }
