@@ -168,7 +168,7 @@ class CDFPage
 			ini_set('session.use_trans_sid', 0);
 		}
 		// configure cookie
-		session_set_cookie_params(0, '/', $cookieDomain, $secure, $secure);
+ 		session_set_cookie_params(0, '/', $cookieDomain, $secure, $secure) ;
 
 		// record some detail relating to the client request for fixation
 		$ipHash = $this->getIPAddressHash($_SERVER['REMOTE_ADDR']);

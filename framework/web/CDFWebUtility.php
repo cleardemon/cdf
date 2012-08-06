@@ -124,7 +124,7 @@
 			// break apart host name at dots
 			$bits = explode('.', $host);
 			$i = count($bits) - 3;
-			if($i < 2)                  /// TODO: Needs a bit of cleanup
+			if($i < 2)                    // TODO: Needs a bit of cleanup
 				return null;
 			if(strlen($bits[($i + 2)]) == 2)
 				$url = $bits[$i] . '.' . $bits[($i + 1)] . '.' . $bits[($i + 2)];
