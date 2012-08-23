@@ -387,6 +387,7 @@
 		 * @param string $key Column key.
 		 * @param int $code Validation error type
 		 * @param string|null $msg Custom message to display, if any.
+		 * @throws CDFInvalidOperationException
 		 */
 		private function addValidationError($key, $code, $msg = null)
 		{
@@ -438,6 +439,7 @@
 		 *
 		 * @param array $cols Column keys to check or null to check all.
 		 * @param bool $stopOnError If true, returns immediately when one validation check fails.
+		 * @throws CDFInvalidOperationException
 		 * @return bool True if an error occurred
 		 */
 		final public function doValidation($cols = null, $stopOnError = false)
