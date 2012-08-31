@@ -96,7 +96,7 @@ class CDFJsonRequest
 		$this->_parsed = false;
 		if($_SERVER['REQUEST_METHOD'] != 'POST')
 			throw new CDFJsonException('Incorrect protocol', CDFJsonErrorCode::InvalidRequest);
-		if(!isset($_SERVER['CONTENT_TYPE']) || $_SERVER['CONTENT_TYPE'] != 'application/json')
+		if(!isset($_SERVER['CONTENT_TYPE']) || strpos($_SERVER['CONTENT_TYPE'], 'application/json') !== 0)
 			throw new CDFJsonException('Expecting JSON', CDFJsonErrorCode::InvalidRequest);
 
 		// parse untouched post data
