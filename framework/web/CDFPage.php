@@ -123,7 +123,7 @@ class CDFPage
 
 	/**
 	 * Computes an MD5 hash of the specified IP address. Returns null if IP is invalid.
-	 * @param $ip Dotted (IPV4) or colonic (IPV6) string representation of the address to hash.
+	 * @param int|string $ip Dotted (IPV4) or colonic (IPV6) string representation of the address to hash.
 	 * @return null|string
 	 */
 	private function getIPAddressHash($ip)
@@ -203,6 +203,12 @@ class CDFPage
 	 */
 	public function destroySession()
 	{
+		// if no session, don't do anything
+		$id = session_id();
+		if(empty($id))
+			return;
+
+		session_start();
 		$name = session_name();
 		session_regenerate_id(); // makes the previous session id entirely useless
 		session_destroy();
