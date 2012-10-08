@@ -208,7 +208,7 @@ class CDFPage
 		if(empty($id))
 			return;
 
-		session_start();
+		@session_start();
 		$name = session_name();
 		session_regenerate_id(); // makes the previous session id entirely useless
 		session_destroy();
