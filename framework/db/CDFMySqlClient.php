@@ -54,6 +54,7 @@ final class CDFMySqlClient implements CDFIDataConnection
 		if ($this->handle === false)
 			throw new CDFSqlException(mysql_error(), '', mysql_errno());
 		mysql_select_db($this->_credentials['database'], $this->handle);
+		mysql_set_charset('utf8', $this->handle);
 	}
 
 	/**
