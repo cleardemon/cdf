@@ -781,16 +781,27 @@
 							$valueList = array();
 							foreach($values as $value)
 							{
-								$db->AddParameter($type, $value);
-								$valueList[] = sprintf('`%s`=?', $key);
+								if(is_null($value))
+									$valueList[] = sprintf('`%s` is NULL', $key);
+								else
+								{
+									$db->AddParameter($type, $value);
+									$valueList[] = sprintf('`%s`=?', $key);
+								}
 							}
 							$sqlFragments[] = sprintf('(%s)', implode(' or ', $valueList));
 						}
 						elseif(count($values) == 1)
 						{
 							// single value
-							$db->AddParameter($type, $values[0]);
-							$sqlFragments[] = sprintf('`%s`=?', $key);
+							$value = $values[0];
+							if(is_null($value))
+								$sqlFragments[] = sprintf('`%s` is NULL', $key);
+							else
+							{
+								$db->AddParameter($type, $value);
+								$sqlFragments[] = sprintf('`%s`=?', $key);
+							}
 						}
 					}
 					// join all the fragments together with 'and'
