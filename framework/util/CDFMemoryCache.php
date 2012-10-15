@@ -8,6 +8,26 @@ interface CDFMemoryCacheKind
 }
 
 /**
+ * Implement this interface to an object to allow for callbacks when adding or fetching from the cache.
+ */
+interface CDFIMemoryCacheObject
+{
+	/**
+	 * Called when the object is about to be placed in a cache.
+	 * @param CDFMemoryCache $cache The cache that is storing the object.
+	 * @return void
+	 */
+	public function cacheWriteCallback($cache);
+
+	/**
+	 * Called when this object has been retrieved from a cache.
+	 * @param CDFMemoryCache $cache The cache that has retrieved the object.
+	 * @return void
+	 */
+	public function cacheReadCallback($cache);
+}
+
+/**
  * Allows for the use of in-memory caching functions in PHP to store keys and values.
  * Safe to call if no functions are available or enabled - if this is the case, nothing is cached.
  */
@@ -115,6 +135,10 @@ final class CDFMemoryCache
 		if($ttl === false)
 			$ttl = $this->_ttl;
 
+		// check for a defined callback when writing to a cache
+		if(is_object($value) && $value instanceof CDFIMemoryCacheObject)
+			$value->cacheWriteCallback($this);
+
 		// add or store item in cache
 		$added = false;
 		switch($this->_cacheMode)
@@ -138,7 +162,6 @@ final class CDFMemoryCache
 		}
 
 		return $added;
-
 	}
 
 	/**
@@ -226,6 +249,10 @@ final class CDFMemoryCache
 				}
 				break;
 		}
+
+		// raise callback if defined on object when reading from cache
+		if($result !== null && is_object($result) && $result instanceof CDFIMemoryCacheObject)
+			$result->cacheReadCallback($this);
 
 		return $result;
 	}
