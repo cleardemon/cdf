@@ -4,19 +4,26 @@ final class CDFConsoleApplication
 {
 	public function __construct()
 	{
+		date_default_timezone_set('GMT');
+
 		// register handlers
-		//set_exception_handler(array($this, 'errorHandler'));
-		//set_error_handler(array($this, 'errorHandler'), E_ERROR);
+		set_exception_handler(array($this, 'errorHandler'));
+		set_error_handler(array($this, 'errorHandler'), E_ALL);
 	}
 
 	//
 	// Error handler
 	//
 
-	static function errorHandler()
+	static function errorHandler($exception, $str)
 	{
 		// kill any locks
 		self::clearLock();
+
+		if(isset($exception) && $exception instanceof Exception)
+			echo 'EXCEPTION: ' . $exception->getMessage() . "\r\n";
+		if(isset($str))
+			echo 'ERROR: ' . $str . "\r\n";
 
 		return true;
 	}
@@ -179,4 +186,18 @@ final class CDFConsoleApplication
 
 		return false; // no lock file found
 	}
+
+	//
+	// Timezone
+	//
+
+	/**
+	 * Sets the default time zone of the application. Defaults to GMT.
+	 * @param $tz string
+	 */
+	public function setTimezone($tz)
+	{
+		date_default_timezone_set($tz);
+	}
+
 }
