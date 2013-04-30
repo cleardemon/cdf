@@ -117,5 +117,26 @@
 		 * @return string
 		 */
 		public function escapeVariable($var);
+
+		/**
+		 * Executes a SQL query, but does not return results in a single array. Results are iterated in a call to NextRow().
+		 * @param string $sql SQL to execute.
+		 * @param bool $skipParameters If true, do not process ? in queries. Advanced use.
+		 * @return int Number of rows returned by query.
+		 */
+		public function BeginQuery($sql, $skipParameters = false);
+
+		/**
+		 * Executes a stored procedure, but does not return results in a single array. Results are iterated in a call to NextRow().
+		 * @param string $name Name of the stored procedure to execute.
+		 * @return int Number of rows returned by execution of the procedure.
+		 */
+		public function BeginProcedure($name);
+
+		/**
+		 * Fetches the next row from the last run query, from either BeginQuery or BeginProcedure. Returns false when no more rows.
+		 * @return array|bool
+		 */
+		public function NextRow();
 	}
 
