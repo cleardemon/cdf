@@ -381,7 +381,7 @@ final class CDFMySqlClient implements CDFIDataConnection
 	 */
 	public function LastID()
 	{
-		$rows = $this->Execute('select last_insert_id() as Id');
+		$rows = $this->Execute('select last_insert_id() as Id', true);
 		return CDFDataHelper::AsInt($rows[0]['Id']);
 	}
 
