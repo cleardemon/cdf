@@ -30,7 +30,7 @@ class CDFPage
 		$url = CDFDataHelper::AsStringSafe($url);
 		if(strlen($url) == 0)
 			throw new CDFInvalidArgumentException('URI in redirect is not specified');
-		if(headers_sent())
+		if(headers_sent() || !isset($_SERVER['HTTP_HOST'])) // some bogus requests come without a host header (bots?)
 			throw new CDFInvalidOperationException('Cannot redirect at this time');
 
 		if($url[0] == '/')
