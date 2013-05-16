@@ -132,6 +132,11 @@ final class CDFMySqlClient implements CDFIDataConnection
 	{
 		$this->_params = array();
 		$this->_lastRowCount = 0;
+		if($this->_lastQuery != null)
+		{
+			@mysql_free_result($this->_lastQuery);
+			$this->_lastQuery = null;
+		}
 	}
 
 	const ValueMagicCharacter = '\x1A'; // chr(26)
