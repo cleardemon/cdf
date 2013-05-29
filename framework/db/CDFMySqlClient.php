@@ -4,6 +4,8 @@
  * @package CDF
  */
 
+// PRO TIP: If you define('CDF_SQL_DEBUG'), messages about the SQL queries this class generates will be written to syslog.
+
 require_once dirname(__FILE__) . '/../core/CDFExceptions.php';
 require_once dirname(__FILE__) . '/../core/CDFDataHelper.php';
 require_once 'CDFIDataConnection.php';
@@ -92,32 +94,35 @@ final class CDFMySqlClient implements CDFIDataConnection
 	 */
 	public function AddParameter($type, $value)
 	{
-		// sanitise value
-		switch ($type)
+		if($value !== null)
 		{
-			case CDFSqlDataType::String:
-				$value = CDFDataHelper::AsStringSafe($value);
-				break;
-			case CDFSqlDataType::Integer:
-				$value = CDFDataHelper::AsInt($value);
-				break;
-			case CDFSqlDataType::Float:
-				$value = CDFDataHelper::AsFloat($value);
-				break;
-			case CDFSqlDataType::Text:
-				$value = CDFDataHelper::AsStringSafe($value, false); // preserve html for text blocks
-				break;
-			case CDFSqlDataType::Timestamp:
-				$value = CDFDataHelper::AsDateTime($value);
-				break;
-			case CDFSqlDataType::Bool:
-				$value = CDFDataHelper::AsBool($value);
-				break;
-			case CDFSqlDataType::Data:
-				$value = CDFDataHelper::AsString($value); // no safe conversion at all
-				break;
-			default:
-				throw new CDFSqlException('CDFMySqlClient: invalid data type');
+			// sanitise value
+			switch ($type)
+			{
+				case CDFSqlDataType::String:
+					$value = CDFDataHelper::AsStringSafe($value);
+					break;
+				case CDFSqlDataType::Integer:
+					$value = CDFDataHelper::AsInt($value);
+					break;
+				case CDFSqlDataType::Float:
+					$value = CDFDataHelper::AsFloat($value);
+					break;
+				case CDFSqlDataType::Text:
+					$value = CDFDataHelper::AsStringSafe($value, false); // preserve html for text blocks
+					break;
+				case CDFSqlDataType::Timestamp:
+					$value = CDFDataHelper::AsDateTime($value);
+					break;
+				case CDFSqlDataType::Bool:
+					$value = CDFDataHelper::AsBool($value);
+					break;
+				case CDFSqlDataType::Data:
+					$value = CDFDataHelper::AsString($value); // no safe conversion at all
+					break;
+				default:
+					throw new CDFSqlException('CDFMySqlClient: invalid data type');
+			}
 		}
 
 		// add to list
@@ -158,6 +163,8 @@ final class CDFMySqlClient implements CDFIDataConnection
 			case CDFSqlDataType::Text:
 			case CDFSqlDataType::Data: // blob data is a string in php
 			{
+				if($value === null)
+					return 'NULL';
 				// if value has an occurrence of the token, escape it out to something that can't be typed
 				$count = 0;
 				$value = str_replace(CDFIDataConnection_TokenCharacter, self::ValueMagicCharacter, $value, $count);
@@ -167,15 +174,21 @@ final class CDFMySqlClient implements CDFIDataConnection
 				return sprintf("'%s'", mysql_real_escape_string($value));
 			}
 			case CDFSqlDataType::Integer:
+				if($value === null)
+					return 'NULL';
 				return sprintf("%d", $value);
 			case CDFSqlDataType::Float:
+				if($value === null)
+					return 'NULL';
 				return sprintf("%F", $value); // non-locale aware float format
 			case CDFSqlDataType::Bool:
+				if($value === null)
+					return 'NULL';
 				return $value === true ? '1' : '0';
 			case CDFSqlDataType::Timestamp:
 				// handle epoch times to be passed as null
 				/** @var $value DateTime */
-				if ($value == null || $value->getTimestamp() == 0)
+				if ($value === null || $value->getTimestamp() == 0)
 					return 'NULL';
 				$value->setTimezone(new DateTimeZone('GMT'));
 				return sprintf("'%s'", $value->format('Y-m-d H:i:s')); // format DateTime object to sql
@@ -203,6 +216,9 @@ final class CDFMySqlClient implements CDFIDataConnection
 			mysql_free_result($this->_lastQuery);
 			$this->_lastQuery = null;
 		}
+
+		if(defined('CDF_SQL_DEBUG'))
+			syslog(LOG_DEBUG, "CDFMySqlClient: Executing - $sql");
 
 		// execute query on database
 		$this->Open(); // refreshes the handle
@@ -399,10 +415,15 @@ final class CDFMySqlClient implements CDFIDataConnection
 		return $this->_lastRowCount;
 	}
 
+	/**
+	 * @param string $input
+	 * @return string
+	 * @throws CDFSqlException
+	 */
 	public function escapeVariable($input)
 	{
 		if(!$this->HasConnection())
-			throw new CDFSqlException('Cannot escape input as  connection not open');
+			throw new CDFSqlException('Cannot escape input as connection not open');
 
 		return mysql_real_escape_string($input, $this->_handle);
 	}

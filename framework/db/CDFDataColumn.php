@@ -62,6 +62,7 @@ abstract class CDFDataColumn
 	 * @param string $name Name of the column
 	 * @param mixed|null $value Default value for the column or null.
 	 * @param array|null $opts A list of options to set, based on CDFDataColumnOption
+	 * @throws CDFInvalidArgumentException
 	 */
 	protected function __construct($dataType, $name, $value = null, $opts = null)
 	{
@@ -70,11 +71,7 @@ abstract class CDFDataColumn
 
 		$this->_dataType = $dataType;
 		$this->_name = $name;
-		if($value != null)
-			$this->setValue($value);
-		else
-			$this->_value = null;
-
+		$this->setValue($value);
 		$this->parseOptions($opts);
 	}
 
@@ -219,6 +216,7 @@ abstract class CDFDataColumnStringBase extends CDFDataColumn
 {
 	/**
 	 * @param string|null $value
+	 * @throws CDFColumnDataException
 	 * @return void
 	 */
 	final public function setValue($value)
@@ -267,7 +265,7 @@ final class CDFDataColumnText extends CDFDataColumnStringBase
 	 */
 	public function __construct($name, $value = null, $opts = null)
 	{
-		parent::__construct(CDFSqlDataType::Text, $name, $value);
+		parent::__construct(CDFSqlDataType::Text, $name, $value, $opts);
 	}
 }
 
@@ -283,7 +281,7 @@ final class CDFDataColumnData extends CDFDataColumnStringBase
 	 */
 	public function __construct($name, $value = null, $opts = null)
 	{
-		parent::__construct(CDFSqlDataType::Data, $name, $value);
+		parent::__construct(CDFSqlDataType::Data, $name, $value, $opts);
 	}
 }
 
@@ -300,7 +298,7 @@ final class CDFDataColumnInteger extends CDFDataColumn
 	 */
 	public function __construct($name, $value = null, $opts = null)
 	{
-		parent::__construct(CDFSqlDataType::Integer, $name, $value);
+		parent::__construct(CDFSqlDataType::Integer, $name, $value, $opts);
 	}
 
 	/**
@@ -310,7 +308,7 @@ final class CDFDataColumnInteger extends CDFDataColumn
 	 */
 	public function setValue($value)
 	{
-		$this->_value = CDFDataHelper::AsInt($value); // force everything to become an integer
+		$this->_value = $value === null ? null : CDFDataHelper::AsInt($value); // force everything to become an integer
 	}
 
 	/**
@@ -336,7 +334,7 @@ final class CDFDataColumnFloat extends CDFDataColumn
 	 */
 	public function __construct($name, $value = null, $opts = null)
 	{
-		parent::__construct(CDFSqlDataType::Float, $name, $value);
+		parent::__construct(CDFSqlDataType::Float, $name, $value, $opts);
 	}
 
 	/**
@@ -346,7 +344,7 @@ final class CDFDataColumnFloat extends CDFDataColumn
 	 */
 	public function setValue($value)
 	{
-		$this->_value = CDFDataHelper::AsFloat($value); // force everything to float
+		$this->_value = $value === null ? null : CDFDataHelper::AsFloat($value); // force everything to float
 	}
 
 	/**
@@ -383,7 +381,7 @@ final class CDFDataColumnTimestamp extends CDFDataColumn
 				$this->_timeZone = $tz;
 		}
 
-		parent::__construct(CDFSqlDataType::Timestamp, $name, CDFDataHelper::AsDateTime($value, $this->_timeZone));
+		parent::__construct(CDFSqlDataType::Timestamp, $name, CDFDataHelper::AsDateTime($value, $this->_timeZone), $opts);
 	}
 	/**
 	 * @param int|DateTime|null $value
@@ -391,7 +389,7 @@ final class CDFDataColumnTimestamp extends CDFDataColumn
 	 */
 	public function setValue($value)
 	{
-		$this->_value = CDFDataHelper::AsDateTime($value, $this->_timeZone);
+		$this->_value = $value === null ? null : CDFDataHelper::AsDateTime($value, $this->_timeZone);
 	}
 
 	/**
@@ -417,7 +415,7 @@ final class CDFDataColumnBool extends CDFDataColumn
 	 */
 	public function __construct($name, $value = null, $opts = null)
 	{
-		parent::__construct(CDFSqlDataType::Bool, $name, $value);
+		parent::__construct(CDFSqlDataType::Bool, $name, $value, $opts);
 	}
 
 	/**
@@ -427,7 +425,7 @@ final class CDFDataColumnBool extends CDFDataColumn
 	 */
 	public function setValue($value)
 	{
-		$this->_value = CDFDataHelper::AsBool($value); // force to boolean
+		$this->_value = $value === null ? null : CDFDataHelper::AsBool($value); // force to boolean
 	}
 
 	/**
