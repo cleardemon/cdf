@@ -117,6 +117,21 @@ class CDFPage
 		return isset($_POST[$name]) ? true : false;
 	}
 
+	/**
+	 * Returns true if all the specified variables are in the postback.
+	 * @param array|mixed $list An array of items, or a vararg list of items.
+	 * @return bool True if all the variables were found.
+	 */
+	public function hasPostVariables($list)
+	{
+		if(!is_array($list))
+			$list = func_get_args();
+		foreach($list as $name)
+			if(!isset($_POST[$name]))
+				return false;
+		return true;
+	}
+
 	//
 	// Session
 	//
