@@ -29,12 +29,11 @@ Usage
 Clone this repository into something like an `include` directory in your project and just `require_once` the bits that are
 contextually-relevant to your source. Example:
 
-  <?php
-  require_once 'include/cdf/framework/core/CDFDataHelper.php';
-  
-  echo CDFDataHelper::AsStringSafe('<h1>Hello world!</h1>');
+    <?php
+    require_once 'include/cdf/framework/core/CDFDataHelper.php';
+    echo CDFDataHelper::AsStringSafe('<h1>Hello world!</h1>');
 
-In this example, this will output `Hello world!` without the <h1> tags.
+In this example, this will output `Hello world!` without the `<h1>` tags.
 
 Import
 ------
