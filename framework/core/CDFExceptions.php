@@ -39,10 +39,10 @@ final class CDFColumnDataException extends Exception
 {
 	private $_key;
 
-	public function __construct($columnkey, $message)
+	public function __construct($columnKey, $message)
 	{
 		parent::__construct($message);
-		$this->_key = $columnkey;
+		$this->_key = $columnKey;
 	}
 
 	public function getColumnKey()
@@ -59,9 +59,14 @@ final class CDFSqlException extends Exception
 {
 	private $_query;
 
-	function __construct($msg, $query = null, $errcode = -1)
+	/**
+	 * @param string $msg
+	 * @param string $query
+	 * @param int $code
+	 */
+	function __construct($msg, $query = null, $code = -1)
 	{
-		parent::__construct($msg, $errcode, null);
+		parent::__construct($msg, $code, null);
 		$this->_query = $query;
 	}
 

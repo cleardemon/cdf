@@ -18,13 +18,13 @@ final class CDFMySqlClient implements CDFIDataConnection
 {
 	/** @var array */
 	private $_params;
-	/** @var resource */
+	/** @var mysqli */
 	private $_handle = null;
 	/** @var array */
 	private $_credentials;
 	/** @var int */
 	private $_lastRowCount = 0;
-	/** @var resource */
+	/** @var mysqli_result */
 	private $_lastQuery = null;
 
 	/**
@@ -54,11 +54,15 @@ final class CDFMySqlClient implements CDFIDataConnection
 	public function Open()
 	{
 		// connect to mysql database
-		$this->_handle = @mysql_connect($this->_credentials['hostname'], $this->_credentials['username'], $this->_credentials['password']);
-		if ($this->_handle === false)
-			throw new CDFSqlException(mysql_error(), '', mysql_errno());
-		mysql_select_db($this->_credentials['database'], $this->_handle);
-		mysql_set_charset('utf8', $this->_handle);
+		$this->_handle = new mysqli($this->_credentials['hostname'], $this->_credentials['username'], $this->_credentials['password'], $this->_credentials['database']);
+		if($this->_handle->errno)
+		{
+			$error = $this->_handle->error;
+			$number = $this->_handle->errno;
+			$this->Close();
+			throw new CDFSqlException($error, null, $number);
+		}
+		$this->_handle->set_charset('utf8');
 	}
 
 	/**
@@ -69,9 +73,9 @@ final class CDFMySqlClient implements CDFIDataConnection
 	{
 		// close handles
 		if($this->_lastQuery != null)
-			mysql_free_result($this->_lastQuery);
-		if ($this->HasConnection() && is_resource($this->_handle))
-			mysql_close($this->_handle);
+			$this->_lastQuery->close();
+		if($this->HasConnection() && $this->_handle != null)
+			$this->_handle->close();
 		$this->_handle = null;
 		$this->_lastQuery = null;
 	}
@@ -82,7 +86,7 @@ final class CDFMySqlClient implements CDFIDataConnection
 	 */
 	public function HasConnection()
 	{
-		return $this->_handle !== null && $this->_handle !== false;
+		return $this->_handle !== null && $this->_handle->connect_errno == 0;
 	}
 
 	/**
@@ -139,7 +143,7 @@ final class CDFMySqlClient implements CDFIDataConnection
 		$this->_lastRowCount = 0;
 		if($this->_lastQuery != null)
 		{
-			@mysql_free_result($this->_lastQuery);
+			@$this->_lastQuery->close();
 			$this->_lastQuery = null;
 		}
 	}
@@ -171,7 +175,7 @@ final class CDFMySqlClient implements CDFIDataConnection
 				if($count > 0)
 					// caller MUST remove the magic character before passing to SQL!
 					$changedValue = true;
-				return sprintf("'%s'", mysql_real_escape_string($value));
+				return sprintf("'%s'", $this->_handle->real_escape_string($value));
 			}
 			case CDFSqlDataType::Integer:
 				if($value === null)
@@ -213,7 +217,7 @@ final class CDFMySqlClient implements CDFIDataConnection
 		$this->_lastRowCount = 0;
 		if($this->_lastQuery != null)
 		{
-			mysql_free_result($this->_lastQuery);
+			@$this->_lastQuery->close();
 			$this->_lastQuery = null;
 		}
 
@@ -221,32 +225,32 @@ final class CDFMySqlClient implements CDFIDataConnection
 			syslog(LOG_DEBUG, "CDFMySqlClient: Executing - $sql");
 
 		// execute query on database
-		$this->Open(); // refreshes the handle
-		$query = mysql_query($sql, $this->_handle);
-		if ($query === false)
+		if(!$this->HasConnection())
+			$this->Open(); // attempt to reconnect if lost
+		$query = $this->_handle->query($sql, $readAll ? MYSQLI_STORE_RESULT : MYSQLI_USE_RESULT);
+		if($query === false)
 			// query errors, throw a CDFSqlException
-			throw new CDFSqlException(mysql_error($this->_handle), $sql, mysql_errno($this->_handle));
+			throw new CDFSqlException($this->_handle->error, $sql, $this->_handle->errno);
 
-		// query succeeded, get rows, if any
+		// query succeeded, get rows, if told to via readAll
 		$rows = array();
-		if (is_resource($query)) {
-			$this->_lastRowCount = mysql_num_rows($query);
-
+		if($query === true)
+			$this->_lastRowCount = $this->_handle->affected_rows;
+		else
+		{
 			// query returned rows/columns
-			if ($this->_lastRowCount > 0 && $readAll) {
+			$this->_lastRowCount = $query->num_rows;
+			if ($this->_lastRowCount > 0 && $readAll)
+			{
 				// there are rows, read into array
-				while ($row = mysql_fetch_assoc($query))
+				while($row = $query->fetch_assoc())
 					$rows[] = $row;
 				// dispose the query handle if reading all
-				mysql_free_result($query);
+				$query->close();
 			}
 			else
 				// keep reference to query result for iterative reading
 				$this->_lastQuery = $query;
-		}
-		elseif ($query === true)
-		{
-			$this->_lastRowCount = mysql_affected_rows($this->_handle);
 		}
 
 		// return an array, regardless of columns/rows, to signify success.
@@ -392,18 +396,20 @@ final class CDFMySqlClient implements CDFIDataConnection
 	public function NextRow()
 	{
 		if($this->_lastQuery != null)
-			return mysql_fetch_assoc($this->_lastQuery);
+			return $this->_lastQuery->fetch_assoc();
 		return false;
 	}
 
 	/**
 	 * Returns the last auto-increment number assigned by the last insert query.
+	 * @throws CDFInvalidOperationException
 	 * @return int The last number created by the database.
 	 */
 	public function LastID()
 	{
-		$rows = $this->Execute('select last_insert_id() as Id', true);
-		return CDFDataHelper::AsInt($rows[0]['Id']);
+		if(!$this->HasConnection())
+			throw new CDFInvalidOperationException('No connection to MySQL server');
+		return CDFDataHelper::AsInt($this->_handle->insert_id);
 	}
 
 	/**
@@ -425,6 +431,6 @@ final class CDFMySqlClient implements CDFIDataConnection
 		if(!$this->HasConnection())
 			throw new CDFSqlException('Cannot escape input as connection not open');
 
-		return mysql_real_escape_string($input, $this->_handle);
+		return $this->_handle->real_escape_string($input);
 	}
 }
