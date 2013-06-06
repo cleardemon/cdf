@@ -26,6 +26,8 @@ final class CDFMySqlClient implements CDFIDataConnection
 	private $_lastRowCount = 0;
 	/** @var mysqli_result */
 	private $_lastQuery = null;
+	/** @var string */
+	private $_sslKey, $_sslCert, $_sslAuthority;
 
 	/**
 	 * Creates a new instance of this class, with database credentials.
@@ -47,14 +49,37 @@ final class CDFMySqlClient implements CDFIDataConnection
 	}
 
 	/**
+	 * Configures the connection to use SSL credentials.
+	 * @param string $key Path to key file for SSL connection. If null, will not use SSL.
+	 * @param string $cert Path to certificate file.
+	 * @param string $authority Path to certificate authority file.
+	 * @return void
+	 */
+	public function setSSL($key, $cert, $authority)
+	{
+		if(CDFDataHelper::isEmpty($key))
+			$this->_sslKey = $this->_sslCert = $this->_sslAuthority = null;
+		else
+		{
+			$this->_sslKey = $key;
+			$this->_sslAuthority = $authority;
+			$this->_sslCert = $cert;
+		}
+	}
+
+	/**
 	 * Opens a connection to the supplied MySQL database.
 	 * @throws CDFSqlException
 	 * @return void
 	 */
 	public function Open()
 	{
+		$this->_handle = mysqli_init();
+		// configure SSL
+		if($this->_sslKey != null)
+			$this->_handle->ssl_set($this->_sslKey, $this->_sslCert, $this->_sslAuthority, null, null);
 		// connect to mysql database
-		$this->_handle = new mysqli($this->_credentials['hostname'], $this->_credentials['username'], $this->_credentials['password'], $this->_credentials['database']);
+		$this->_handle->real_connect($this->_credentials['hostname'], $this->_credentials['username'], $this->_credentials['password'], $this->_credentials['database']);
 		if($this->_handle->errno)
 		{
 			$error = $this->_handle->error;

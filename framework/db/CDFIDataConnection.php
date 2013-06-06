@@ -52,6 +52,14 @@
 	interface CDFIDataConnection
 	{
 		/**
+		 * @param string $key Path to key file for SSL connection.
+		 * @param string $cert Path to certificate file.
+		 * @param string $authority Path to certificate authority file.
+		 * @return void
+		 */
+		public function setSSL($key, $cert, $authority);
+
+		/**
 		 * Opens a connection to the data store.
 		 * @abstract
 		 * @return void
