@@ -531,8 +531,7 @@
 				{
 					/** @var $ts DateTime */
 					$ts = $col->getValue();
-
-					if(!$this->testValidationNumberRange($col, $ts->getTimestamp(), $stopOnError))
+					if(!$this->testValidationNumberRange($col, $ts == null ? 0 : $ts->getTimestamp(), $stopOnError))
 						break;
 				}
 			}
