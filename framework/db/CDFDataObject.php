@@ -310,8 +310,8 @@
 		final protected function getColumnDateTime($key, $allowNull = false)
 		{
 			$value = $this->getColumnValue($key, $allowNull);
-			// "null" times are set to midnight Jan 1 1970 (epoch)
-			if(!($value instanceof DateTime))
+			// "null" times are set to midnight Jan 1 1970 (epoch) when the column is changed, but existing data may be actually "null"
+			if(!is_null($value) && !($value instanceof DateTime))
 				throw new CDFColumnDataException($key, 'Column is not a timestamp');
 			return $value;
 		}
