@@ -19,7 +19,9 @@ require_once dirname(__FILE__) . '/../core/CDFDataHelper.php';
 final class CDFThrottle
 {
 	/** @var string|null */
-	static $_logLocation = null;
+	private static $_logLocation = null;
+	/** @var string[]|null */
+	private static $_whiteList = null;
 
 	/**
 	 * Sets a path to write denied requests due to throttling. If null (default), no logs are written.
@@ -28,6 +30,18 @@ final class CDFThrottle
 	public static function setLogLocation($path)
 	{
 		self::$_logLocation = $path;
+	}
+
+	/**
+	 * Sets a list of IP addresses that will not be subject to throttling. If null, clears the white list.
+	 * @param string[] $list
+	 * @remarks
+	 * The list should just be a simple array of IP addresses.
+	 */
+	public static function setWhiteList($list)
+	{
+		if($list == null || is_array($list))
+			self::$_whiteList = $list;
 	}
 
 	/**
@@ -71,6 +85,12 @@ final class CDFThrottle
 			else
 				throw new CDFInvalidArgumentException('Throttle cannot determine request IP');
 		}
+
+		// test white list
+		if($requestIP == '127.0.0.1')
+			return false; // always allow localhost
+		if(is_array(self::$_whiteList) && array_search($requestIP, self::$_whiteList) !== false)
+			return false; // allow
 
 		// get a handle on the memory cache
 		$cache = new CDFMemoryCache(CDFMemoryCacheKind::AlternativePHPCache);
