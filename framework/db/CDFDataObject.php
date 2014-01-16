@@ -715,6 +715,33 @@
 			$db->Query($sql);
 		}
 
+		/* These special key names allow for the where clauses to determine whether or not each clause is grouped by AND or OR.
+		 * For example:
+		 *
+		 *  - array('ColA' => 'Apple', 'ColB' => 'Pear', 'ColC' => 'Banana')
+		 * => (ColA = 'Apple' OR ColB = 'Pear' OR ColC = 'Banana')
+		 *
+		 *  - array(
+		 *     CDFWhereClauseComparisonKey => CDFWhereClauseComparisonAND,
+		 *     'ColA' => 'Apple', 'ColB' => 'Pear', 'ColC' => 'Banana')
+		 * => (ColA = 'Apple' AND ColB = 'Pear' AND ColC = 'Banana')
+		 *
+		 * TODO: Make this allow for multiple comparison keys in a single clause array (to switch between AND and OR, with correct use of braces to separate clauses).
+		 */
+
+		/**
+		 * Defines the comparison to use in a where clause.
+		 */
+		const CDFWhereClauseComparisonKey = '!CDFWhere';
+		/**
+		 * Defines to use an 'AND' comparison in a where clause.
+		 */
+		const CDFWhereClauseComparisonAND = '!AND';
+		/**
+		 * Defines to use an 'OR' comparison in a where clause. This is default.
+		 */
+		const CDFWhereClauseComparisonOR = '!OR';
+
 		// This supports the following scenarios:
 		// array('column' => 'value', 'column2' => 'value2')
 		// array('column', 'value', 'column', 'value2') // note same column key
@@ -756,8 +783,31 @@
 				{
 					$sql .= ' where ';
 					$sqlFragments = array();
+					// default to use 'or'
+					$fragmentSeparator = ' or ';
 					foreach($whereValues as $key => $values)
 					{
+						if($key == self::CDFWhereClauseComparisonKey)
+						{
+							if(count($values) == 1)
+							{
+								switch($values[0])
+								{
+									case self::CDFWhereClauseComparisonAND:
+										$fragmentSeparator = ' and ';
+										break;
+									case self::CDFWhereClauseComparisonOR:
+										$fragmentSeparator = ' or ';
+										break;
+									default:
+										throw new CDFInvalidOperationException('Unsupported where clause comparison');
+								}
+							}
+							else
+								throw new CDFInvalidOperationException('Where clause comparison value not set');
+							continue;
+						}
+
 						// find out what type the column is
 						$col = $this->findColumn($key);
 						$type = CDFSqlDataType::String; // blindly assume it will be a string
@@ -773,10 +823,8 @@
 							$type = $col->getDataType();
 
 						// if more than one value for this key, do an 'or' query
-						// TODO: change this so it can be configured at column level ('and'/'or')
 						if(count($values) > 1)
 						{
-							// use 'or'
 							$valueList = array();
 							foreach($values as $value)
 							{
@@ -788,7 +836,7 @@
 									$valueList[] = sprintf('`%s`=?', $key);
 								}
 							}
-							$sqlFragments[] = sprintf('(%s)', implode(' or ', $valueList));
+							$sqlFragments[] = sprintf('(%s)', implode($fragmentSeparator, $valueList));
 						}
 						elseif(count($values) == 1)
 						{
