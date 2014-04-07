@@ -109,90 +109,96 @@
 		 * Sets a value of a column to be a string, passing it to AsStringSafe first. Use with String and Text fields.
 		 * @param string $key
 		 * @param mixed $value
-		 * @param bool $stripHTML
+		 * @param bool $stripHTML If true, string will have HTML/XML removed; false to preserve.
+		 * @param bool $allowNull If false, string will be set to '' if value is null; true will allow null will be set.
 		 */
-		final protected function setColumnString($key, $value, $stripHTML = true)
+		final protected function setColumnString($key, $value, $stripHTML = true, $allowNull = false)
 		{
 			$col = $this->findColumn($key);
 			if($col === null)
 				return;
 
-			$col->setValue(CDFDataHelper::AsStringSafe($value, $stripHTML));
+			$col->setValue($allowNull && is_null($value) ? null : CDFDataHelper::AsStringSafe($value, $stripHTML));
 		}
 
 		/**
 		 * Sets a value of a column to be an integer.
 		 * @param string $key
 		 * @param mixed $value
+		 * @param bool $allowNull If false, integer will be 0 if value is null; true will allow null will be set.
 		 */
-		final protected function setColumnInteger($key, $value)
+		final protected function setColumnInteger($key, $value, $allowNull = false)
 		{
 			$col = $this->findColumn($key);
 			if($col === null)
 				return;
 
-			$col->setValue(CDFDataHelper::AsInt($value));
+			$col->setValue($allowNull && is_null($value) ? null : CDFDataHelper::AsInt($value));
 		}
 
 		/**
 		 * Sets a value of a column to be a float.
 		 * @param string $key
 		 * @param mixed $value
+		 * @param bool $allowNull If false, float will be 0 if value is null; true will allow null will be set.
 		 */
-		final protected function setColumnFloat($key, $value)
+		final protected function setColumnFloat($key, $value, $allowNull = false)
 		{
 			$col = $this->findColumn($key);
 			if($col === null)
 				return;
 
-			$col->setValue(CDFDataHelper::AsFloat($value));
+			$col->setValue($allowNull && is_null($value) ? null : CDFDataHelper::AsFloat($value));
 		}
 
 		/**
 		 * Sets a value of a column to be true or false.
 		 * @param string $key
 		 * @param mixed $value
+		 * @param bool $allowNull If false, boolean will be false if value is null; true will allow null will be set.
 		 * @return void
 		 */
-		final protected function setColumnBoolean($key, $value)
+		final protected function setColumnBoolean($key, $value, $allowNull = false)
 		{
 			$col = $this->findColumn($key);
 			if($col === null)
 				return;
 
-			$col->setValue(CDFDataHelper::AsBool($value));
+			$col->setValue($allowNull && is_null($value) ? null : CDFDataHelper::AsBool($value));
 		}
 
 		/**
 		 * Sets a value of a column to be a DateTime.
 		 * @param string $key
 		 * @param mixed $value
+		 * @param bool $allowNull If false, date will be the epoch start date (1-Jan-1970) if value is null; true will allow null will be set.
 		 * @return void
 		 */
-		final protected function setColumnDateTime($key, $value)
+		final protected function setColumnDateTime($key, $value, $allowNull = false)
 		{
 			$col = $this->findColumn($key);
 			// only allow this on defined Timestamp columns
 			if($col === null || $col->getDataType() !== CDFSqlDataType::Timestamp)
 				return;
 
-			$col->setValue($value); // forces to use CDFDataHelper::AsDateTime
+			$col->setValue($allowNull && is_null($value) ? null : $value); // forces to use CDFDataHelper::AsDateTime
 		}
 
 		/**
 		 * Sets a binary value of a column.
 		 * @param string $key
 		 * @param string $value
+		 * @param bool $allowNull If false, integer will be 0 if value is null; true will allow null will be set.
 		 * @return void
 		 */
-		final protected function setColumnData($key, $value)
+		final protected function setColumnData($key, $value, $allowNull = false)
 		{
 			$col = $this->findColumn($key);
 			// only allow on binary data types
 			if($col === null || $col->getDataType() !== CDFSqlDataType::Data)
 				return;
 
-			$col->setValue($value);
+			$col->setValue($allowNull && is_null($value) ? null : $value);
 		}
 
 		//
