@@ -91,7 +91,7 @@ class CDFJsonRequest
 	 * @throws CDFJsonException
 	 * @return void
 	 */
-	final public function loadFromPOST()
+	public function loadFromPOST()
 	{
 		$this->_parsed = false;
 		if($_SERVER['REQUEST_METHOD'] != 'POST')
@@ -108,7 +108,7 @@ class CDFJsonRequest
 	 * @param string $input
 	 * @return bool
 	 */
-	final public function loadFromString($input)
+	public function loadFromString($input)
 	{
 		$this->_parsed = false;
 		if(!is_string($input))
@@ -128,7 +128,7 @@ class CDFJsonRequest
 	}
 
 	/**
-	 * Meat of the parser.
+	 * Meat of the parser. Attempts to read the supplied input as JSON.
 	 *
 	 * @param string $input
 	 * @throws CDFJsonException
@@ -215,13 +215,12 @@ class CDFJsonResponse
 	 * @return void
 	 * @throws CDFInvalidOperationException
 	 */
-	final public function toOutput()
+	public function toOutput()
 	{
 		if(headers_sent())
 			throw new CDFInvalidOperationException();
 		header('Content-Type: application/json');
 		header('Expires: -1');
-
 		echo $this->toJSON();
 	}
 }
