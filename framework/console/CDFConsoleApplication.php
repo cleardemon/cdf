@@ -21,7 +21,7 @@ final class CDFConsoleApplication
 		self::clearLock();
 
 		if(isset($exception) && $exception instanceof Exception)
-			echo 'EXCEPTION: ' . $exception->getMessage() . "\r\n";
+			echo sprintf("EXCEPTION: %s\r\n%s\r\n", $exception->getMessage(), $exception->getTraceAsString());
 		if(isset($str))
 			echo 'ERROR: ' . $str . "\r\n";
 
