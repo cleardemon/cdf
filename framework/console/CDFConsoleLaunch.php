@@ -31,7 +31,7 @@ class CDFConsoleLaunch
 		else
 		{
 			// unix
-			$shell = sprintf('php -f %s -- %s &> /dev/null &', escapeshellarg($pathPhpScript), join(' ', $formattedArgs));
+			$shell = sprintf('php -f %s -- %s >/dev/null &', escapeshellarg($pathPhpScript), join(' ', $formattedArgs));
 		}
 		exec($shell);
 	}

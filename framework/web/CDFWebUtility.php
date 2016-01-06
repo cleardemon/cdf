@@ -152,5 +152,42 @@ final class CDFWebUtility
 		$scheme = $_SERVER['SERVER_PORT'] == 443 ? 'https' : 'http';
 		return sprintf('%s://%s%s', $scheme, $_SERVER['HTTP_HOST'], $uri);
 	}
+
+	/**
+	 * Extracts an associated array (key/value pairs) from the PHP magic variable $http_response_header.
+	 * Typically used after a call to file_get_contents('http://...').
+	 * @param $responseHeaders string The contents of $http_response_header
+	 * @return array
+	 * @throws CDFInvalidObjectException
+	 * @link http://php.net/manual/en/reserved.variables.httpresponseheader.php
+	 * The returned array contains a key 'StatusCode' for the HTTP status code (such as 200, 400, etc.).
+	 */
+	public static function getFormattedResponseHeaders($responseHeaders)
+	{
+		if($responseHeaders === null || !is_array($responseHeaders))
+			return array();
+
+		$headers = array();
+		foreach($responseHeaders as $k => $v)
+		{
+			// parse each header.. it's either:
+			//  - Key: Value
+			//  - HTTP/1.1 Code Status
+			$line = explode(':', $v, 2); // explode on colon
+			if(isset($line[1]))
+			{
+				// key/value pair
+				$headers[trim($line[0])] = trim($line[1]);
+			}
+			else
+			{
+				// status
+				if(preg_match('HTTP/[0-9\.]+\s+([0-9]+)#', $v, $code))
+					$headers['StatusCode'] = CDFDataHelper::AsInt($code);
+			}
+		}
+
+		return $headers;
+	}
 }
 
