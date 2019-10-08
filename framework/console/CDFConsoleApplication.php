@@ -127,7 +127,7 @@ final class CDFConsoleApplication
 	private static function getLockFilename()
 	{
 		global $argv;
-		return sprintf('%s%s.lock', sys_get_temp_dir(), basename($argv[0]));
+		return sprintf('%s/%s.lock', sys_get_temp_dir(), basename($argv[0]));
 	}
 
 	/**
