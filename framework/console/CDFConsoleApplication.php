@@ -7,7 +7,7 @@ final class CDFConsoleApplication
 		date_default_timezone_set('GMT');
 
 		// register handlers
-		set_exception_handler(array($this, 'errorHandler'));
+		set_exception_handler(array($this, 'exceptionHandler'));
 		set_error_handler(array($this, 'errorHandler'), E_ALL);
 	}
 
@@ -15,17 +15,21 @@ final class CDFConsoleApplication
 	// Error handler
 	//
 
-	static function errorHandler($exception, $str)
+	static function errorHandler($errno, $errstr)
 	{
 		// kill any locks
 		self::clearLock();
 
-		if(isset($exception) && $exception instanceof Exception)
-			echo sprintf("EXCEPTION: %s\r\n%s\r\n", $exception->getMessage(), $exception->getTraceAsString());
-		if(isset($str))
-			echo 'ERROR: ' . $str . "\r\n";
-
+		echo 'ERROR: ' . $errstr . "\r\n";
 		return true;
+	}
+	
+	static function exceptionHandler($exception)
+	{
+		// kill any locks
+		self::clearLock();
+
+		echo sprintf("EXCEPTION: %s\r\n%s\r\n", $exception->getMessage(), $exception->getTraceAsString());
 	}
 
 	//
