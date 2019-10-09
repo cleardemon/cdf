@@ -166,6 +166,9 @@ final class CDFConsoleApplication
 	 */
 	public static function clearLock()
 	{
+		if(!self::$_locked)
+			return; // not locked
+
 		if(self::$_lockhandle !== null)
 		{
 			@fclose(self::$_lockhandle);
